@@ -1,10 +1,11 @@
 cmake_minimum_required(VERSION 3.4.3)
-project(abstract_vuln_finder)
+project(abstract_vuln_finder DESCRIPTION "buffer overflow finder using abstract interpretation")
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 
 option(BUILD_DOC "Build Documentation" ON)
 find_package(Doxygen)
+
 if (DOXYGEN_FOUND)
 	set(DOXYGEN_IN ${CMAKE_CURRENT_SOURCE_DIR}/docs/Doxyfile.in)
 	set(DOXYGEN_OUT ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
@@ -20,6 +21,7 @@ if (DOXYGEN_FOUND)
 else (DOXYGEN_FOUND)
 	message("Doxygen needs to be installed to generate the doxygen documentation")
 endif(DOXYGEN_FOUND)
+
 find_package(LLVM REQUIRED CONFIG)
 
 message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
@@ -38,10 +40,10 @@ set(CMAKE_VERBOSE_MAKEFILE ON)
 
 include_directories(${LLVM_INCLUDE_DIRS})
 add_definitions(${LLVM_DEFINITIONS})
-add_executable(abstract_vuln_finder src/main.cc
-				    src/IR_manip.cc
-	)
-
+add_executable(abstract_vuln src/main.cc src/IR_manip.cc)
+add_library(abstract_vuln_finder SHARED
+	src/IR_manip.cc )
 llvm_map_components_to_libnames(llvm_libs)
 
 target_link_libraries(abstract_vuln_finder LLVM ${llvm_libs})
+target_link_libraries(abstract_vuln LLVM ${llvm_libs})
