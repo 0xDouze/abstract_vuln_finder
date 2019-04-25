@@ -17,7 +17,6 @@ int IR_manip::check_module() const {
 
 llvm::Function *IR_manip::get_function_handle(const std::string &func_name) {
   for (auto &I : (*_mod).getFunctionList()) {
-    // std::cout << I.getName().str() << "\n";
     if (I.getName().str().find(func_name) != std::string::npos &&
         I.getName().str().find("sub") != std::string::npos)
       return _mod->getFunction(I.getName().str());
@@ -29,4 +28,12 @@ void IR_manip::print_function(llvm::Function *func) const {
   for (llvm::inst_iterator I = llvm::inst_begin(func), E = llvm::inst_end(func);
        I != E; ++I)
     llvm::errs() << *I << "\n";
+}
+
+void IR_manip::put_func_to_worklist(llvm::Function *func,
+                                    std::set<llvm::Instruction *> &worklist) {
+  for (llvm::inst_iterator I = llvm::inst_begin(func), E = llvm::inst_end(func);
+       I != E; ++I) {
+    worklist.insert(&*I);
+  }
 }

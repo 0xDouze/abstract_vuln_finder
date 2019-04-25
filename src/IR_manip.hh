@@ -9,6 +9,7 @@
 #include <llvm/IRReader/IRReader.h>
 #include <llvm/Support/SourceMgr.h>
 #include <llvm/Support/raw_ostream.h>
+#include <set>
 
 /*! A test class */
 class IR_manip {
@@ -18,6 +19,8 @@ public:
   int check_module() const;
   llvm::Function *get_function_handle(const std::string &func_name);
   void print_function(llvm::Function *func) const;
+  void put_func_to_worklist(llvm::Function *func,
+                            std::set<llvm::Instruction *> &worklist);
 
 private:
   std::string _ir_file;

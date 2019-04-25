@@ -23,6 +23,13 @@ int main(int ac, char **av) {
     return -1;
   }
 
-  IR.print_function(func);
+  //  IR.print_function(func);
+
+  std::set<llvm::Instruction *> worklist;
+  IR.put_func_to_worklist(func, worklist);
+  for (auto const &I : worklist) {
+    llvm::errs() << *I << "\n";
+  }
+
   return 0;
 }
