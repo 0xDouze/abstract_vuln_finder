@@ -1,21 +1,26 @@
 #pragma once
 
-#include <iostream>
 #include <ios>
-#include <llvm/Support/SourceMgr.h>
+#include <iostream>
+#include <llvm/IR/Function.h>
+#include <llvm/IR/InstIterator.h>
+#include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Module.h>
 #include <llvm/IRReader/IRReader.h>
-#include <llvm/IR/LLVMContext.h>
+#include <llvm/Support/SourceMgr.h>
 #include <llvm/Support/raw_ostream.h>
 
-class IR_manip
-{
+/*! A test class */
+class IR_manip {
 public:
-	IR_manip(char* ir_file, llvm::LLVMContext& ctx, llvm::SMDiagnostic& diag);
-	~IR_manip();
-	int check_module() const;
+  IR_manip(char *ir_file, llvm::LLVMContext &ctx, llvm::SMDiagnostic &diag);
+  ~IR_manip();
+  int check_module() const;
+  llvm::Function *get_function_handle(const std::string &func_name);
+  void print_function(llvm::Function *func) const;
+
 private:
-	std::string _ir_file;
-	std::unique_ptr<llvm::Module> _mod;
-	llvm::SMDiagnostic _diag;
+  std::string _ir_file;
+  llvm::SMDiagnostic _diag;
+  std::unique_ptr<llvm::Module> _mod;
 };

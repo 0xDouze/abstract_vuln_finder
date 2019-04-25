@@ -1,22 +1,28 @@
-#include <iostream>
-#include <ios>
 #include "IR_manip.hh"
-int main(int ac, char **av)
-{
-	if (ac != 2)
-	{
-		llvm::errs() << "Usage: " << av[0] << " <IR file>\n";
-		return -1;
-	}
+#include <ios>
+#include <iostream>
+#include <set>
 
-	llvm::SMDiagnostic Err;
-	llvm::LLVMContext Context;
-	IR_manip IR(av[1], Context, Err);
-	if (IR.check_module() == -1)
-	{
-		Err.print(av[0], llvm::errs());
-		return -1;
-	}
+int main(int ac, char **av) {
+  if (ac != 2) {
+    llvm::errs() << "Usage: " << av[0] << " <IR file>\n";
+    return -1;
+  }
 
-	return 0;
+  llvm::SMDiagnostic Err;
+  llvm::LLVMContext Context;
+  IR_manip IR(av[1], Context, Err);
+  if (IR.check_module() == -1) {
+    Err.print(av[0], llvm::errs());
+    return -1;
+  }
+
+  llvm::Function *func = IR.get_function_handle("sub_401126_main");
+  if (func == nullptr) {
+    Err.print(av[0], llvm::errs());
+    return -1;
+  }
+
+  IR.print_function(func);
+  return 0;
 }
