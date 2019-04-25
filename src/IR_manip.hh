@@ -11,7 +11,7 @@
 #include <llvm/Support/raw_ostream.h>
 #include <set>
 
-/*! A test class */
+/*! This class is used to manipulate the ir for further use */
 class IR_manip {
 public:
   IR_manip(char *ir_file, llvm::LLVMContext &ctx, llvm::SMDiagnostic &diag);
