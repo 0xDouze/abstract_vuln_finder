@@ -32,6 +32,9 @@ message(STATUS "Using LLVMConfig.make in: ${LLVM_DIR}")
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/
+	)
+
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -std=c++17")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_DEBUG} -O0 -g")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_RELEASE} -Wall -Wextra -O2")
@@ -44,8 +47,10 @@ include_directories(${LLVM_INCLUDE_DIRS})
 add_definitions(${LLVM_DEFINITIONS})
 add_executable(abstract_vuln src/main.cc src/IR_manip.cc)
 add_library(abstract_vuln_finder SHARED
-	src/IR_manip.cc )
+	src/IR_manip.cc)
 llvm_map_components_to_libnames(llvm_libs)
 
 target_link_libraries(abstract_vuln_finder LLVM ${llvm_libs})
 target_link_libraries(abstract_vuln LLVM ${llvm_libs})
+
+enable_testing()

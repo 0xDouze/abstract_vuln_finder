@@ -17,8 +17,9 @@ int main(int ac, char **av) {
     return -1;
   }
 
-  llvm::Function *func = IR.get_function_handle("sub_401126_main");
+  llvm::Function *func = IR.get_function_handle("main");
   if (func == nullptr) {
+	  std::cout << "func not found" << std::endl;
     Err.print(av[0], llvm::errs());
     return -1;
   }

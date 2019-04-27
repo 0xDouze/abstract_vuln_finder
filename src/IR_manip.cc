@@ -14,13 +14,18 @@ int IR_manip::check_module() const {
     return -1;
   return 0;
 }
-
+/*! The loop is done twice due to the naming of the functions on mcsema */
 llvm::Function *IR_manip::get_function_handle(const std::string &func_name) {
   for (auto &I : (*_mod).getFunctionList()) {
     if (I.getName().str().find(func_name) != std::string::npos &&
         I.getName().str().find("sub") != std::string::npos)
       return _mod->getFunction(I.getName().str());
   }
+  for (auto &I: _mod->getFunctionList()) {
+    if (I.getName().str().find(func_name) != std::string::npos)
+      return _mod->getFunction(I.getName().str());
+  }
+  llvm::errs() << "Function not found\n";
   return nullptr;
 }
 
