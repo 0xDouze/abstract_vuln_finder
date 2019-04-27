@@ -1,7 +1,20 @@
-#include "IR_manip.hh"
 #include <ios>
 #include <iostream>
 #include <set>
+#include "IR_manip.hh"
+#include "Graph.hh"
+#include "Func.hh"
+void test_graph(std::set<llvm::Instruction*>& worklist)
+{
+  Arc arc;
+  Node node;
+
+  arc.id = 1;
+  arc.inst = *worklist.begin();
+  node.arc_in.push_back(arc);
+  node.pos = 2;
+  llvm::errs() << *node.arc_in.begin()->inst;
+}
 
 int main(int ac, char **av) {
   if (ac != 2) {
@@ -31,6 +44,8 @@ int main(int ac, char **av) {
   for (auto const &I : worklist) {
     llvm::errs() << *I << "\n";
   }
+
+  test_graph(worklist);
 
   return 0;
 }
