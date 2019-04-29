@@ -2,18 +2,21 @@
 #include <iostream>
 #include <set>
 #include "IR_manip.hh"
-#include "Graph.hh"
-#include "Func.hh"
+#include "CFG.hh"
+#include <memory>
+
 void test_graph(std::set<llvm::Instruction*>& worklist)
 {
-  Arc arc;
-  Node node;
+  std::shared_ptr<Arc> arc = std::make_shared<Arc>();
+  std::shared_ptr<Node> node = std::make_shared<Node>();
 
-  arc.id = 1;
-  arc.inst = *worklist.begin();
-  node.arc_in.push_back(arc);
-  node.pos = 2;
-  llvm::errs() << *node.arc_in.begin()->inst;
+  arc->id = 1;
+  arc->inst = *worklist.begin();
+  node->arc_in.push_back(arc);
+  node->pos = 2;
+  llvm::errs() << *(*node->arc_in.begin())->inst;
+
+  CFG cfg;
 }
 
 int main(int ac, char **av) {
@@ -37,15 +40,8 @@ int main(int ac, char **av) {
     return -1;
   }
 
-  //  IR.print_function(func);
-
-  std::set<llvm::Instruction *> worklist;
-  IR.put_func_to_worklist(func, worklist);
-  for (auto const &I : worklist) {
-    llvm::errs() << *I << "\n";
-  }
-
-  test_graph(worklist);
+  CFG cfg(IR);
+  //test_graph(worklist);
 
   return 0;
 }
