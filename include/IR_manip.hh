@@ -10,13 +10,14 @@
 #include <llvm/Support/SourceMgr.h>
 #include <llvm/Support/raw_ostream.h>
 #include <set>
-
+#include <string>
 /*! This class is used to manipulate the ir for further use */
 class IR_manip {
 public:
   IR_manip(char *ir_file, llvm::LLVMContext &ctx, llvm::SMDiagnostic &diag);
   ~IR_manip();
   int check_module() const;
+  const std::set<std::string> get_function_list() const;
   llvm::Function *get_function_handle(const std::string &func_name);
   void print_function(llvm::Function *func) const;
   void put_func_to_worklist(llvm::Function *func,
