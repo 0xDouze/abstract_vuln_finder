@@ -30,3 +30,9 @@
 *.exe
 *.out
 *.app
+
+#folders
+build
+
+#files
+tags
