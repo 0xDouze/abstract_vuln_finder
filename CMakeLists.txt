@@ -63,5 +63,6 @@ llvm_map_components_to_libnames(llvm_libs)
 
 target_link_libraries(abstract_vuln_finder LLVM ${llvm_libs})
 target_link_libraries(abstract_vuln LLVM ${llvm_libs})
+target_link_libraries(abstract_vuln_finder gtest_main)
 enable_testing()
 add_subdirectory(tests)

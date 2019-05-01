@@ -28,3 +28,19 @@ add_subdirectory(${CMAKE_CURRENT_BINARY_DIR}/googletest-src
 if (CMAKE_VERSION VERSION_LESS 2.8.11)
   include_directories("${gtest_SOURCE_DIR}/include")
 endif()
+add_executable(test_ir_manip test_ir_manip.cc)
+target_link_libraries(test_ir_manip abstract_vuln_finder)
+target_link_libraries(test_ir_manip ${llvm_libs})
+add_test(NAME IR_manip COMMAND test_ir_manip)
+
+add_executable(test_func Core/CFG/test_func.cc)
+target_link_libraries(test_func ${llvm_libs} abstract_vuln_finder)
+add_test(NAME Func COMMAND test_func)
+
+add_executable(test_graph Core/CFG/test_graph.cc)
+target_link_libraries(test_graph ${llvm_libs} abstract_vuln_finder)
+add_test(NAME Graph COMMAND test_graph)
+
+add_executable(test_cfg Core/CFG/test_cfg.cc)
+target_link_libraries(test_cfg ${llvm_libs} abstract_vuln_finder)
+add_test(NAME CFG COMMAND test_cfg)
