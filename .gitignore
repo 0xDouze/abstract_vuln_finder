@@ -33,6 +33,8 @@
 
 #folders
 build
+docs
 
 #files
 tags
+.ycm_extra_conf.py
