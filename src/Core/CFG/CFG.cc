@@ -1,29 +1,14 @@
 #include "CFG.hh"
-
-CFG::CFG()
-{
-  _cfg_vars.empty();
-  _cfg_funcs.empty();
-  _cfg_nodes.empty();
-  _cfg_arcs.empty();
-}
+CFG::CFG() { }
 
 CFG::CFG(IR_manip& ir)
 {
-  _cfg_vars.empty();
-  _cfg_funcs.empty();
-  _cfg_nodes.empty();
-  _cfg_arcs.empty();
   set_cfg_init_entry(ir);
   set_cfg_init_exit(ir);
 }
 
 CFG::CFG(IR_manip& ir, const llvm::Function *func)
 {
-  _cfg_vars.empty();
-  _cfg_funcs.empty();
-  _cfg_nodes.empty();
-  _cfg_arcs.empty();
   (void)ir;
   (void)func;
 }
@@ -86,8 +71,12 @@ void CFG::set_cfg_init_entry(std::shared_ptr<Node> init_entry)
 void CFG::set_cfg_init_entry(IR_manip& ir)
 {
   TransformToCFG ttc;
-  ir.print_function(ir.get_function_handle("__mcsema_constructor"));
+  llvm::Function *init = ir.get_function_handle("__mcsema_constructor");
+  if (init == nullptr)
+    return; //Fix : Add default function that sets everything to 0
   _cfg_init_entry = ttc.convert_function_to_node(ir, "__mcsema_constructor");
+  if (_cfg_init_entry == nullptr)
+    return; //Fix : Make node from default function constructor
   llvm::errs() << *(*_cfg_init_entry->arc_out.begin())->inst << "\n";
   llvm::errs() << *(*(*_cfg_init_entry->arc_out.begin())->node_in->arc_out.begin())->inst << "\n";
 }

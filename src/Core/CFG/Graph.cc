@@ -3,8 +3,14 @@
 Node::Node()
   :id(0), pos(0)
 {
-  arc_out.empty();
-  arc_in.empty();
+}
+
+Node::Node(const Node& other)
+{
+  this->id = other.id;
+  this->pos = other.pos;
+  this->arc_in = other.arc_in;
+  this->arc_out = other.arc_out;
 }
 
 Node& Node::operator=(const Node& other)
@@ -29,7 +35,13 @@ Arc::Arc()
 {
 }
 
-
+Arc::Arc(const Arc& other)
+{
+  this->id = other.id;
+  this->inst = other.inst;
+  this->node_in = other.node_in;
+  this->node_out = other.node_out;
+}
 Arc& Arc::operator=(const Arc& other)
 {
   if (this != &other)

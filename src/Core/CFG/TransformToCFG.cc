@@ -1,4 +1,5 @@
 #include <string.h>
+#include <llvm/Support/SourceMgr.h>
 #include "TransformToCFG.hh"
 TransformToCFG::TransformToCFG()
 :_node_cnt(0)
@@ -27,9 +28,15 @@ std::shared_ptr<Node> TransformToCFG::parse_instructions(std::shared_ptr<Node> n
 
 std::shared_ptr<Node> TransformToCFG::convert_function_to_node(IR_manip& ir, const std::string& func)
 {
+  llvm::SMDiagnostic err;
   std::shared_ptr<Node> start = std::make_shared<Node>();
   std::set<llvm::Instruction*> inst;
   llvm::Function *handle = ir.get_function_handle(func);
+  if (handle == nullptr)
+  {
+    err.print(__func__, llvm::errs());
+    return nullptr;
+  }
   ir.put_func_to_worklist(handle, inst);
   start->id = _node_cnt;
   start->pos = 0; //todo later

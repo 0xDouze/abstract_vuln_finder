@@ -37,7 +37,7 @@ llvm::Function *IR_manip::get_function_handle(const std::string &func_name) {
     if (I.getName().str().find(func_name) != std::string::npos)
       return _mod->getFunction(I.getName().str());
   }
-  llvm::errs() << "Function not found\n";
+  llvm::errs() << func_name << ": Function not found\n";
   return nullptr;
 }
 

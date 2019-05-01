@@ -7,6 +7,7 @@ struct Arc;
 struct Node
 {
   Node();
+  Node(const Node& other);
   Node& operator=(const Node& other);
   bool equal(const Node& other) const;
   int id; //unique identifier
@@ -18,6 +19,7 @@ struct Node
 struct Arc
 {
   Arc();
+  Arc(const Arc& other);
   Arc& operator=(const Arc& other);
   bool equal(const Arc& other) const;
   int id; //unique identifier

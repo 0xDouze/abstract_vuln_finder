@@ -4,8 +4,6 @@ Func::Func()
   :id(0), pos(0)
 {
   ret_val.reset();
-  args.empty();
-  func_calls.empty();
 }
 
 std::list<std::any> Func::get_args() const
