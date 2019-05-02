@@ -27,7 +27,8 @@ Node& Node::operator=(const Node& other)
 
 bool Node::equal(const Node& other) const
 {
-  return id == other.id;
+  return (id == other.id) && (pos == other.pos) &&
+    (arc_in == other.arc_in) && (arc_out == other.arc_out);
 }
 
 Arc::Arc()
@@ -56,5 +57,6 @@ Arc& Arc::operator=(const Arc& other)
 
 bool Arc::equal(const Arc& other) const
 {
-  return other.id == id;
+  return (other.id == id) && (node_out == other.node_out) &&
+    (node_in == other.node_in) && (inst == other.inst);
 }
