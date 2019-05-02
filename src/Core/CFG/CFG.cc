@@ -71,17 +71,11 @@ void CFG::set_cfg_init_entry(std::shared_ptr<Node> init_entry)
 void CFG::set_cfg_init_entry(IR_manip& ir)
 {
   TransformToCFG ttc;
-  llvm::errs() << "init:\n";
-  llvm::Function *func = ir.get_function_handle("__mcsema_constructor");
-  for (llvm::InstIterator I = llvm::inst_begin(func), E = llvm::inst_end(func); I != E; ++I)
-    llvm::errs() << *I << "\n";
-  llvm::errs() << "\n\n";
   _cfg_init_entry = ttc.convert_function_to_node(ir, "__mcsema_constructor");
   if (_cfg_init_entry == nullptr)
     return; //Fix : Make node from default function constructor
   llvm::errs() << *(*_cfg_init_entry->arc_out.begin())->inst << "\n";
   llvm::errs() << *(*(*_cfg_init_entry->arc_out.begin())->node_in->arc_out.begin())->inst << "\n";
-  //llvm::errs() << *(*(*_cfg_init_entry->arc_out.begin())->node_out->arc_out.begin())->inst << "\n";
 }
 void CFG::set_cfg_init_exit(std::shared_ptr<Node> init_exit)
 {
@@ -91,15 +85,9 @@ void CFG::set_cfg_init_exit(std::shared_ptr<Node> init_exit)
 void CFG::set_cfg_init_exit(IR_manip& ir)
 {
   TransformToCFG ttc;
-  llvm::errs() << "\n\nexit: \n";
-  llvm::Function *func = ir.get_function_handle("__mcsema_destructor");
-  for (llvm::InstIterator I = llvm::inst_begin(func), E = llvm::inst_end(func); I != E; ++I)
-    llvm::errs() << *I << "\n";
-  llvm::errs() << "\n\n";
   _cfg_init_exit = ttc.convert_function_to_node(ir, "__mcsema_destructor");
   if (_cfg_init_exit == nullptr)
     return; //Fix: Make node from default function destructor
   llvm::errs() << *(*_cfg_init_exit->arc_out.begin())->inst << "\n";
-  llvm::errs() << *(*(*_cfg_init_exit->arc_out.begin())->node_in->arc_out.begin())->inst << "\n";
-  //llvm::errs() << *(*(*_cfg_init_exit->arc_out.begin())->node_out->arc_out.begin())->inst << "\n";
+  llvm::errs() << *(*(*_cfg_init_exit->arc_out.begin())->node_out->arc_out.begin())->inst << "\n";
 }
