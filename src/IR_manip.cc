@@ -48,9 +48,9 @@ void IR_manip::print_function(llvm::Function *func) const {
 }
 
 void IR_manip::put_func_to_worklist(llvm::Function *func,
-                                    std::set<llvm::Instruction *> &worklist) {
+                                    std::list<llvm::Instruction *> &worklist) {
   for (llvm::inst_iterator I = llvm::inst_begin(func), E = llvm::inst_end(func);
        I != E; ++I) {
-    worklist.insert(&*I);
+    worklist.push_back(&*I);
   }
 }

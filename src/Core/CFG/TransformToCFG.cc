@@ -5,7 +5,11 @@ TransformToCFG::TransformToCFG()
 :_node_cnt(0)
 {}
 
-std::shared_ptr<Node> TransformToCFG::parse_instructions(std::shared_ptr<Node> node, std::set<llvm::Instruction*>::iterator begin, std::set<llvm::Instruction*>::iterator current, const std::set<llvm::Instruction*>::iterator end)
+/* This code does not support calls yet, not hard to add
+ * Also it stores IR instructions in the graph, which should
+ * not be done and needs to be translated to simpler instructions
+ * my god this project is long */
+std::shared_ptr<Node> TransformToCFG::parse_instructions(IR_manip& ir, std::shared_ptr<Node> node, const std::list<llvm::Instruction*>::iterator begin, std::list<llvm::Instruction*>::iterator current, const std::list<llvm::Instruction*>::iterator end)
 {
   if (current == end)
     return nullptr;
@@ -23,14 +27,15 @@ std::shared_ptr<Node> TransformToCFG::parse_instructions(std::shared_ptr<Node> n
 
   _node_cnt++;
   _arc_cnt++;
-  return parse_instructions(node_next, begin, ++current, end);
+  current++;
+  return parse_instructions(ir, node_next, begin, current, end);
 }
 
 std::shared_ptr<Node> TransformToCFG::convert_function_to_node(IR_manip& ir, const std::string& func)
 {
   llvm::SMDiagnostic err;
   std::shared_ptr<Node> start = std::make_shared<Node>();
-  std::set<llvm::Instruction*> inst;
+  std::list<llvm::Instruction*> inst;
   llvm::Function *handle = ir.get_function_handle(func);
   if (handle == nullptr)
   {
@@ -41,7 +46,7 @@ std::shared_ptr<Node> TransformToCFG::convert_function_to_node(IR_manip& ir, con
   start->id = _node_cnt;
   start->pos = 0; //todo later
   _node_cnt++;
- parse_instructions(start, inst.begin(), inst.begin(), inst.end());
+ parse_instructions(ir, start, inst.begin(), inst.begin(), inst.end());
  _node_cnt = 0;
  _arc_cnt = 0;
   return start;
