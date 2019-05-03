@@ -82,7 +82,5 @@ TransformToCFG::convert_function_to_node(llvm::Function *func) {
   start->pos = 0; // todo later
   _node_cnt++;
   parse_instructions(start, inst.begin(), inst.begin(), inst.end());
-  _node_cnt = 0;
-  _arc_cnt = 0;
   return start;
 }

@@ -40,6 +40,7 @@ int main(int ac, char **av) {
   }
 
   CFG cfg(IR);
+  cfg.print_init();
   // test_graph(worklist);
 
   return 0;
