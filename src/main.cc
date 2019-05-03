@@ -1,12 +1,11 @@
+#include "CFG.hh"
+#include "IR_manip.hh"
 #include <ios>
 #include <iostream>
-#include <set>
-#include "IR_manip.hh"
-#include "CFG.hh"
 #include <memory>
+#include <set>
 
-void test_graph(std::set<llvm::Instruction*>& worklist)
-{
+void test_graph(std::set<llvm::Instruction *> &worklist) {
   std::shared_ptr<Arc> arc = std::make_shared<Arc>();
   std::shared_ptr<Node> node = std::make_shared<Node>();
 
@@ -35,13 +34,13 @@ int main(int ac, char **av) {
 
   llvm::Function *func = IR.get_function_handle("main");
   if (func == nullptr) {
-	  std::cout << "func not found" << std::endl;
+    std::cout << "func not found" << std::endl;
     Err.print(av[0], llvm::errs());
     return -1;
   }
 
   CFG cfg(IR);
-  //test_graph(worklist);
+  // test_graph(worklist);
 
   return 0;
 }

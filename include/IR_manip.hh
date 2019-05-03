@@ -2,6 +2,7 @@
 
 #include <ios>
 #include <iostream>
+#include <list>
 #include <llvm/IR/Function.h>
 #include <llvm/IR/InstIterator.h>
 #include <llvm/IR/LLVMContext.h>
@@ -9,7 +10,6 @@
 #include <llvm/IRReader/IRReader.h>
 #include <llvm/Support/SourceMgr.h>
 #include <llvm/Support/raw_ostream.h>
-#include <list>
 #include <set>
 #include <string>
 /*! This class is used to manipulate the ir for further use */
@@ -22,7 +22,8 @@ public:
   llvm::Function *get_function_handle(const std::string &func_name);
   void print_function(llvm::Function *func) const;
   static void put_func_to_worklist(llvm::Function *func,
-                            std::list<llvm::Instruction *> &worklist);
+                                   std::list<llvm::Instruction *> &worklist);
+
 private:
   std::string _ir_file;
   llvm::SMDiagnostic _diag;

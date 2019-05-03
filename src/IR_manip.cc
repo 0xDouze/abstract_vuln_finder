@@ -9,18 +9,15 @@ IR_manip::IR_manip(char *ir_file, llvm::LLVMContext &ctx,
 
 IR_manip::~IR_manip() {}
 
-
 int IR_manip::check_module() const {
   if (_mod == nullptr)
     return -1;
   return 0;
 }
 
-const std::set<std::string> IR_manip::get_function_list() const
-{
+const std::set<std::string> IR_manip::get_function_list() const {
   std::set<std::string> func_list;
-  for (auto &I : _mod->getFunctionList())
-  {
+  for (auto &I : _mod->getFunctionList()) {
     func_list.insert(I.getName());
   }
   return func_list;
@@ -33,7 +30,7 @@ llvm::Function *IR_manip::get_function_handle(const std::string &func_name) {
         I.getName().str().find("sub") != std::string::npos)
       return _mod->getFunction(I.getName().str());
   }
-  for (auto &I: _mod->getFunctionList()) {
+  for (auto &I : _mod->getFunctionList()) {
     if (I.getName().str().find(func_name) != std::string::npos)
       return _mod->getFunction(I.getName().str());
   }
