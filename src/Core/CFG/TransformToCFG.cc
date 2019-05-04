@@ -1,8 +1,11 @@
 #include "TransformToCFG.hh"
+#include "Func.hh"
 #include <llvm/IR/Instructions.h>
 #include <llvm/Support/Casting.h>
 #include <llvm/Support/SourceMgr.h>
+#include <map>
 #include <string.h>
+#include <utility>
 
 TransformToCFG::TransformToCFG() : _node_cnt(0) {}
 
@@ -10,7 +13,7 @@ TransformToCFG::TransformToCFG() : _node_cnt(0) {}
  * not be done and needs to be translated to simpler instructions
  * Maybe will have to modify it because the branches are added continuously */
 std::shared_ptr<Node> TransformToCFG::parse_instructions(
-    std::shared_ptr<Node> node,
+    struct Env &env, std::shared_ptr<Node> node,
     const std::list<llvm::Instruction *>::iterator begin,
     std::list<llvm::Instruction *>::iterator current,
     const std::list<llvm::Instruction *>::iterator end) {
@@ -25,7 +28,7 @@ std::shared_ptr<Node> TransformToCFG::parse_instructions(
     arc_call->node_in = node;
     llvm::Function *func = callinst->getCalledFunction();
     if (func != nullptr) {
-      arc_call->node_out = convert_function_to_node(func);
+      arc_call->node_out = convert_function_to_node(env, func);
       node->arc_out.push_front(arc_call);
     }
     if (current != end)
@@ -48,11 +51,11 @@ std::shared_ptr<Node> TransformToCFG::parse_instructions(
   _node_cnt++;
   _arc_cnt++;
   current++;
-  return parse_instructions(node_next, begin, current, end);
+  return parse_instructions(env, node_next, begin, current, end);
 }
 
 std::shared_ptr<Node>
-TransformToCFG::convert_function_to_node(IR_manip &ir,
+TransformToCFG::convert_function_to_node(IR_manip &ir, struct Env &env,
                                          const std::string &func) {
   llvm::SMDiagnostic err;
   std::shared_ptr<Node> start = std::make_shared<Node>();
@@ -62,18 +65,20 @@ TransformToCFG::convert_function_to_node(IR_manip &ir,
     err.print(__func__, llvm::errs());
     return nullptr;
   }
+
   ir.put_func_to_worklist(handle, inst);
   start->id = _node_cnt;
   start->pos = 0; // todo later
   _node_cnt++;
-  parse_instructions(start, inst.begin(), inst.begin(), inst.end());
+  parse_instructions(env, start, inst.begin(), inst.begin(), inst.end());
   _node_cnt = 0;
   _arc_cnt = 0;
   return start;
 }
 
 std::shared_ptr<Node>
-TransformToCFG::convert_function_to_node(llvm::Function *func) {
+TransformToCFG::convert_function_to_node(struct Env &env,
+                                         llvm::Function *func) {
   llvm::SMDiagnostic err;
   std::shared_ptr<Node> start = std::make_shared<Node>();
   std::list<llvm::Instruction *> inst;
@@ -81,6 +86,6 @@ TransformToCFG::convert_function_to_node(llvm::Function *func) {
   start->id = _node_cnt;
   start->pos = 0; // todo later
   _node_cnt++;
-  parse_instructions(start, inst.begin(), inst.begin(), inst.end());
+  parse_instructions(env, start, inst.begin(), inst.begin(), inst.end());
   return start;
 }
