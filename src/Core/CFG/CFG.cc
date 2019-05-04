@@ -12,8 +12,32 @@ CFG::CFG(IR_manip &ir, const std::string &func_name) {
   TransformToCFG ttc;
   struct Env env;
   ttc.convert_function_to_node(ir, env, func_name);
+  _cfg_vars.insert(_cfg_vars.end(), env.env_vars.begin(), env.env_vars.end());
+  _cfg_funcs.insert(_cfg_funcs.end(), env.env_func.begin(), env.env_func.end());
+  set_arcs_and_nodes(env);
+}
+//Fix: Change the CFG type to an unordered set
+void CFG::add_arc(struct Env& env, std::shared_ptr<Arc> arc)
+{
+  if (arc == nullptr)
+    return;
+  _cfg_arcs.push_back(arc);
+  add_node(env, arc->node_out);
 }
 
+void CFG::add_node(struct Env& env, std::shared_ptr<Node> node)
+{
+  if (node == nullptr)
+    return;
+  _cfg_nodes.push_back(node);
+  for (auto& I : node->arc_out)
+    add_arc(env, I);
+}
+
+void CFG::set_arcs_and_nodes(struct Env& env)
+{
+  add_node(env, (*env.env_func.begin())->func_entry);
+}
 const std::vector<std::shared_ptr<Var>> CFG::get_cfg_vars() const {
   return _cfg_vars;
 }

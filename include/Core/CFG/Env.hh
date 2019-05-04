@@ -10,12 +10,12 @@
 
 // may need to change the Nodes, we'll see
 struct Env {
-  std::list<Var> env_vars;        // map of all variables in the function
-  std::list<Func> env_func;       // map of all functions called
+  std::list<std::shared_ptr<Var>> env_vars;        // map of all variables in the function
+  std::list<std::shared_ptr<Func>> env_func;       // map of all functions called
   std::shared_ptr<Node> env_exit; // node to go to after terminator (not sure if
                                   // i should keep a copy or a ref)
   std::list<llvm::Function *> call_list;
-  Var env_return; // variable that contains the returned value if the terminator
+  std::list<Var> env_return; // variable that contains the returned value if the terminator
                   // is a return
   std::map<std::string, std::shared_ptr<Node>> env_labels; // map of all labels
   std::map<std::string, std::shared_ptr<Node>>

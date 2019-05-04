@@ -37,8 +37,12 @@ public:
   void print_init();
 
 private:
+  void add_node(struct Env &env, std::shared_ptr<Node> node);
+  void add_arc(struct Env &env, std::shared_ptr<Arc> arc);
   void print_arc(std::fstream &file, std::shared_ptr<Arc> arc);
   void print_node(std::fstream &file, std::shared_ptr<Node> node);
+  void set_arcs_and_nodes(struct Env &env);
+  //change the vectors for std::unordered_set
   std::vector<std::shared_ptr<Var>>
       _cfg_vars; // List of all the variables in the CFG
   std::vector<std::shared_ptr<Func>>
