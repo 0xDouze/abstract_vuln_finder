@@ -10,7 +10,7 @@
 #include <map>
 #include <memory>
 #include <string>
-#include <vector>
+#include <unordered_set>
 
 class CFG {
 public:
@@ -19,12 +19,12 @@ public:
   CFG(IR_manip &ir,
       const std::string &func_name); // creates cfg with only the init and the
                                      // specified function
-  const std::vector<std::shared_ptr<Var>> get_cfg_vars() const;
-  const std::vector<std::shared_ptr<Func>> get_cfg_funcs() const;
-  const std::vector<std::shared_ptr<Node>> get_cfg_nodes() const;
-  const std::vector<std::shared_ptr<Arc>> get_cfg_arcs() const;
-  const std::shared_ptr<Node> get_cfg_init_entry() const;
-  const std::shared_ptr<Node> get_cfg_init_exit() const;
+  const std::unordered_set<std::shared_ptr<Var>> &get_cfg_vars() const;
+  const std::unordered_set<std::shared_ptr<Func>> &get_cfg_funcs() const;
+  const std::unordered_set<std::shared_ptr<Node>> &get_cfg_nodes() const;
+  const std::unordered_set<std::shared_ptr<Arc>> &get_cfg_arcs() const;
+  const std::shared_ptr<Node> &get_cfg_init_entry() const;
+  const std::shared_ptr<Node> &get_cfg_init_exit() const;
   void add_cfg_var(std::shared_ptr<Var> var);
   void add_cfg_func(std::shared_ptr<Func> func);
   void add_cfg_node(std::shared_ptr<Node> node);
@@ -39,17 +39,17 @@ public:
 private:
   void add_node(struct Env &env, std::shared_ptr<Node> node);
   void add_arc(struct Env &env, std::shared_ptr<Arc> arc);
-  void print_arc(std::fstream &file, std::shared_ptr<Arc> arc);
-  void print_node(std::fstream &file, std::shared_ptr<Node> node);
+  void print_arc(std::fstream &file, const std::shared_ptr<Arc> &arc);
+  void print_node(std::fstream &file, const std::shared_ptr<Node> &node);
   void set_arcs_and_nodes(struct Env &env);
-  //change the vectors for std::unordered_set
-  std::vector<std::shared_ptr<Var>>
+  // change the unordered_sets for std::unordered_set
+  std::unordered_set<std::shared_ptr<Var>>
       _cfg_vars; // List of all the variables in the CFG
-  std::vector<std::shared_ptr<Func>>
+  std::unordered_set<std::shared_ptr<Func>>
       _cfg_funcs; // List of all the functions in the CFG
-  std::vector<std::shared_ptr<Node>>
+  std::unordered_set<std::shared_ptr<Node>>
       _cfg_nodes; // List of all the nodes in the CFG
-  std::vector<std::shared_ptr<Arc>>
+  std::unordered_set<std::shared_ptr<Arc>>
       _cfg_arcs; // List of all the arcs in the CFG
   std::shared_ptr<Node>
       _cfg_init_entry; // First node of code initializing the global variables

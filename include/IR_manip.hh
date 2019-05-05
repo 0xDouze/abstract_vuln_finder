@@ -12,6 +12,7 @@
 #include <llvm/Support/raw_ostream.h>
 #include <set>
 #include <string>
+
 /*! This class is used to manipulate the ir for further use */
 class IR_manip {
 public:

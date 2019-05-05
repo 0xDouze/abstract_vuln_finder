@@ -39,6 +39,8 @@ llvm::Function *IR_manip::get_function_handle(const std::string &func_name) {
 }
 
 void IR_manip::print_function(llvm::Function *func) const {
+  if (func == nullptr)
+    return;
   for (llvm::inst_iterator I = llvm::inst_begin(func), E = llvm::inst_end(func);
        I != E; ++I)
     llvm::errs() << *I << "\n";
@@ -46,6 +48,8 @@ void IR_manip::print_function(llvm::Function *func) const {
 
 void IR_manip::put_func_to_worklist(llvm::Function *func,
                                     std::list<llvm::Instruction *> &worklist) {
+  if (func == nullptr)
+    return;
   for (llvm::inst_iterator I = llvm::inst_begin(func), E = llvm::inst_end(func);
        I != E; ++I) {
     worklist.push_back(&*I);
