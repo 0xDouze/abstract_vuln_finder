@@ -8,15 +8,17 @@
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/Support/SourceMgr.h>
 #include <set>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 TEST(CFG, DefaultConstructor) {
   CFG cfg;
 
-  EXPECT_EQ(std::vector<Var>().empty(), cfg.get_cfg_vars().empty());
-  EXPECT_EQ(std::vector<Func>().empty(), cfg.get_cfg_funcs().empty());
-  EXPECT_EQ(std::vector<Node>().empty(), cfg.get_cfg_nodes().empty());
-  EXPECT_EQ(std::vector<Arc>().empty(), cfg.get_cfg_arcs().empty());
+  EXPECT_EQ(true, cfg.get_cfg_funcs().empty());
+  EXPECT_EQ(true, cfg.get_cfg_nodes().empty());
+  EXPECT_EQ(true, cfg.get_cfg_arcs().empty());
   EXPECT_EQ(nullptr, cfg.get_cfg_init_entry());
   EXPECT_EQ(nullptr, cfg.get_cfg_init_exit());
 }
