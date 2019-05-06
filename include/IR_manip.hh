@@ -22,8 +22,8 @@ public:
   const std::set<std::string> get_function_list() const;
   llvm::Function *get_function_handle(const std::string &func_name);
   void print_function(llvm::Function *func) const;
-  static void put_func_to_worklist(llvm::Function *func,
-                                   std::list<llvm::Instruction *> &worklist);
+  static void add_BB_to_worklist(llvm::Function *func,
+                                 std::vector<llvm::BasicBlock *> &worklist);
 
 private:
   std::string _ir_file;

@@ -7,21 +7,21 @@
 #include <string.h>
 #include <utility>
 
-TransformToCFG::TransformToCFG() : _node_cnt(0) {}
+TransformToCFG::TransformToCFG() : _node_cnt(0), _arc_cnt(0), _func_cnt(0) {}
 
 /* It stores IR instructions in the graph, which should
  * not be done and needs to be translated to simpler instructions
  * Maybe will have to modify it because the branches are added continuously */
-std::shared_ptr<Node> TransformToCFG::parse_instructions(
-    struct Env &env, std::shared_ptr<Node> node,
-    const std::list<llvm::Instruction *>::iterator begin,
-    std::list<llvm::Instruction *>::iterator current,
-    const std::list<llvm::Instruction *>::iterator end) {
+std::shared_ptr<Node>
+TransformToCFG::parse_instructions(struct Env &env, std::shared_ptr<Node> node,
+                                   const llvm::BasicBlock::iterator begin,
+                                   llvm::BasicBlock::iterator current,
+                                   const llvm::BasicBlock::iterator end) {
   if (current == end)
     return nullptr;
 
-  if (strcmp((*(*current)).getOpcodeName(), "call") == 0) {
-    llvm::CallInst *callinst = llvm::cast<llvm::CallInst>(*current);
+  if (strcmp(((*current)).getOpcodeName(), "call") == 0) {
+    llvm::CallInst *callinst = llvm::cast<llvm::CallInst>(current);
     std::shared_ptr<Arc> arc_call = std::make_shared<Arc>();
     arc_call->id = _arc_cnt;
     arc_call->inst = callinst;
@@ -42,7 +42,7 @@ std::shared_ptr<Node> TransformToCFG::parse_instructions(
   node_next->id = _node_cnt;
   node_next->pos = 0; // todo later
   arc_cur->id = _arc_cnt;
-  arc_cur->inst = *current;
+  arc_cur->inst = &*current;
   arc_cur->node_out = node_next;
   arc_cur->node_in = node;
   node->arc_out.push_back(arc_cur);
@@ -66,13 +66,15 @@ TransformToCFG::convert_function_to_node(IR_manip &ir, struct Env &env,
     return nullptr;
   }
 
-  ir.put_func_to_worklist(handle, inst);
-  start->id = _node_cnt;
-  start->pos = 0; // todo later
-  _node_cnt++;
-  parse_instructions(env, start, inst.begin(), inst.begin(), inst.end());
+  for (llvm::BasicBlock &BB : *handle) {
+    start->id = _node_cnt;
+    start->pos = 0; // todo later
+    _node_cnt++;
+    parse_instructions(env, start, BB.begin(), BB.begin(), BB.end());
+  }
   _node_cnt = 0;
   _arc_cnt = 0;
+  _func_cnt = 0;
   return start;
 }
 
@@ -81,11 +83,11 @@ TransformToCFG::convert_function_to_node(struct Env &env,
                                          llvm::Function *func) {
   llvm::SMDiagnostic err;
   std::shared_ptr<Node> start = std::make_shared<Node>();
-  std::list<llvm::Instruction *> inst;
-  IR_manip::put_func_to_worklist(func, inst);
-  start->id = _node_cnt;
-  start->pos = 0; // todo later
-  _node_cnt++;
-  parse_instructions(env, start, inst.begin(), inst.begin(), inst.end());
+  for (auto &BB : *func) {
+    start->id = _node_cnt;
+    start->pos = 0; // todo later
+    _node_cnt++;
+    parse_instructions(env, start, BB.begin(), BB.begin(), BB.end());
+  }
   return start;
 }

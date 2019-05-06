@@ -46,12 +46,10 @@ void IR_manip::print_function(llvm::Function *func) const {
     llvm::errs() << *I << "\n";
 }
 
-void IR_manip::put_func_to_worklist(llvm::Function *func,
-                                    std::list<llvm::Instruction *> &worklist) {
+void IR_manip::add_BB_to_worklist(llvm::Function *func,
+                                  std::vector<llvm::BasicBlock *> &worklist) {
   if (func == nullptr)
     return;
-  for (llvm::inst_iterator I = llvm::inst_begin(func), E = llvm::inst_end(func);
-       I != E; ++I) {
-    worklist.push_back(&*I);
-  }
+  for (llvm::BasicBlock &BB : *func)
+    worklist.push_back(&BB);
 }

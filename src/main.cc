@@ -2,6 +2,7 @@
 #include "IR_manip.hh"
 #include <ios>
 #include <iostream>
+#include <llvm/IR/BasicBlock.h>
 #include <memory>
 #include <set>
 
@@ -26,9 +27,6 @@ int main(int ac, char **av) {
     return -1;
   }
 
-  //  CFG cfg(IR);
-  // cfg.print_init();
-  // test_graph(worklist);
   CFG cfg(IR, "sub_400526_main");
   return 0;
 }

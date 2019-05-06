@@ -6,6 +6,7 @@
 #include "Var.hh"
 #include <list>
 #include <llvm/ADT/StringMap.h>
+#include <llvm/IR/BasicBlock.h>
 #include <llvm/IR/Value.h>
 #include <map>
 #include <memory>
@@ -27,9 +28,10 @@ public:
 private:
   std::shared_ptr<Node>
   parse_instructions(struct Env &env, std::shared_ptr<Node> node,
-                     const std::list<llvm::Instruction *>::iterator begin,
-                     std::list<llvm::Instruction *>::iterator current,
-                     const std::list<llvm::Instruction *>::iterator end);
+                     const llvm::BasicBlock::iterator begin,
+                     llvm::BasicBlock::iterator current,
+                     const llvm::BasicBlock::iterator end);
   unsigned _node_cnt; // node counter
   unsigned _arc_cnt;  // arc counter
+  unsigned _func_cnt; // function counter
 };
