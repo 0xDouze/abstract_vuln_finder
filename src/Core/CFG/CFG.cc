@@ -40,13 +40,15 @@ void CFG::add_node(struct Env &env, std::shared_ptr<Node> node) {
 
 void CFG::set_arcs_and_nodes(struct Env &env) {
   if (env.env_func.empty() == false)
-    add_node(env, (*env.env_func.begin())->func_entry);
+    for (auto &I : env.env_func)
+      add_node(env, I.second->func_entry);
 }
 const std::unordered_set<std::shared_ptr<Var>> &CFG::get_cfg_vars() const {
   return _cfg_vars;
 }
 
-const std::unordered_set<std::shared_ptr<Func>> &CFG::get_cfg_funcs() const {
+const std::unordered_map<std::string, std::shared_ptr<Func>> &
+CFG::get_cfg_funcs() const {
   return _cfg_funcs;
 }
 
@@ -68,7 +70,10 @@ const std::shared_ptr<Node> &CFG::get_cfg_init_exit() const {
 
 void CFG::add_cfg_var(std::shared_ptr<Var> var) { _cfg_vars.insert(var); }
 
-void CFG::add_cfg_func(std::shared_ptr<Func> func) { _cfg_funcs.insert(func); }
+void CFG::add_cfg_func(std::shared_ptr<Func> func) {
+  if (func != nullptr)
+    _cfg_funcs.insert(std::make_pair(func->name, func));
+}
 
 void CFG::add_cfg_node(std::shared_ptr<Node> node) { _cfg_nodes.insert(node); }
 
@@ -139,5 +144,4 @@ void CFG::print_init() {
   file << func->getName().str() << " {\n";
   print_node(file, _cfg_init_entry);
   file << "}";
-  file.close();
 }

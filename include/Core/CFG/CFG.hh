@@ -10,8 +10,8 @@
 #include <map>
 #include <memory>
 #include <string>
+#include <unordered_map>
 #include <unordered_set>
-
 class CFG {
 public:
   CFG();             // set empty cfg
@@ -20,7 +20,8 @@ public:
       const std::string &func_name); // creates cfg with only the init and the
                                      // specified function
   const std::unordered_set<std::shared_ptr<Var>> &get_cfg_vars() const;
-  const std::unordered_set<std::shared_ptr<Func>> &get_cfg_funcs() const;
+  const std::unordered_map<std::string, std::shared_ptr<Func>> &
+  get_cfg_funcs() const;
   const std::unordered_set<std::shared_ptr<Node>> &get_cfg_nodes() const;
   const std::unordered_set<std::shared_ptr<Arc>> &get_cfg_arcs() const;
   const std::shared_ptr<Node> &get_cfg_init_entry() const;
@@ -45,7 +46,7 @@ private:
   // change the unordered_sets for std::unordered_set
   std::unordered_set<std::shared_ptr<Var>>
       _cfg_vars; // List of all the variables in the CFG
-  std::unordered_set<std::shared_ptr<Func>>
+  std::unordered_map<std::string, std::shared_ptr<Func>>
       _cfg_funcs; // List of all the functions in the CFG
   std::unordered_set<std::shared_ptr<Node>>
       _cfg_nodes; // List of all the nodes in the CFG
