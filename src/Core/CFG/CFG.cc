@@ -47,7 +47,8 @@ void CFG::set_arcs_and_nodes(struct Env &env) {
     for (auto &I : env.env_func)
       add_node(env, I.second->func_entry);
 }
-const std::unordered_map<std::string, std::shared_ptr<Var>> &CFG::get_cfg_vars() const {
+const std::unordered_map<std::string, std::shared_ptr<Var>> &
+CFG::get_cfg_vars() const {
   return _cfg_vars;
 }
 
@@ -72,7 +73,9 @@ const std::shared_ptr<Node> &CFG::get_cfg_init_exit() const {
   return _cfg_init_exit;
 }
 
-void CFG::add_cfg_var(std::shared_ptr<Var> var) { _cfg_vars.insert(std::make_pair(var->name, var)); }
+void CFG::add_cfg_var(std::shared_ptr<Var> var) {
+  _cfg_vars.insert(std::make_pair(var->name, var));
+}
 
 void CFG::add_cfg_func(std::shared_ptr<Func> func) {
   if (func != nullptr)

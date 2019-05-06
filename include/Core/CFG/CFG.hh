@@ -19,7 +19,8 @@ public:
   CFG(IR_manip &ir,
       const std::string &func_name); // creates cfg with only the init and the
                                      // specified function
-  const std::unordered_map<std::string, std::shared_ptr<Var>> &get_cfg_vars() const;
+  const std::unordered_map<std::string, std::shared_ptr<Var>> &
+  get_cfg_vars() const;
   const std::unordered_map<std::string, std::shared_ptr<Func>> &
   get_cfg_funcs() const;
   const std::unordered_set<std::shared_ptr<Node>> &get_cfg_nodes() const;
@@ -37,6 +38,7 @@ public:
   // void print(const std::string& func_name);
   void print_init();
   void print_func_to_dot(const std::shared_ptr<Node> &func_entry);
+
 private:
   void add_node(struct Env &env, std::shared_ptr<Node> node);
   void add_arc(struct Env &env, std::shared_ptr<Arc> arc);
