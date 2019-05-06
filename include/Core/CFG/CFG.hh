@@ -36,7 +36,7 @@ public:
   void set_cfg_init_exit(IR_manip &ir);
   // void print(const std::string& func_name);
   void print_init();
-
+  void print_func_to_dot(const std::shared_ptr<Node> &func_entry);
 private:
   void add_node(struct Env &env, std::shared_ptr<Node> node);
   void add_arc(struct Env &env, std::shared_ptr<Arc> arc);

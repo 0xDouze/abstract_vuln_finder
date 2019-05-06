@@ -11,9 +11,13 @@ CFG::CFG(IR_manip &ir) {
 CFG::CFG(IR_manip &ir, const std::string &func_name) {
   TransformToCFG ttc;
   struct Env env;
+
+  set_cfg_init_entry(ir);
+  set_cfg_init_exit(ir);
+
   if (ttc.convert_function_to_node(ir, env, func_name) == nullptr)
     return;
-
+  print_func_to_dot(_cfg_init_entry);
   if (env.env_vars.empty() == false)
     _cfg_vars.insert(env.env_vars.begin(), env.env_vars.end());
 
@@ -143,5 +147,25 @@ void CFG::print_init() {
   file << "digraph ";
   file << func->getName().str() << " {\n";
   print_node(file, _cfg_init_entry);
+  file << "}";
+}
+
+void CFG::print_func_to_dot(const std::shared_ptr<Node> &func_entry) {
+  std::fstream file;
+  if ((func_entry == nullptr || func_entry->arc_out.empty()))
+    return;
+
+  llvm::Function *func = (*func_entry->arc_out.begin())->inst->getFunction();
+  std::string filename = func->getName().str();
+  filename.append(".dot");
+  file.open(filename,
+            std::fstream::in | std::fstream::out | std::fstream::trunc);
+  if (file.is_open() == false) {
+    std::cerr << "Failed to open file " << filename << " for printing\n";
+    return;
+  }
+  file << "digraph ";
+  file << func->getName().str() << " {\n";
+  print_node(file, func_entry);
   file << "}";
 }
