@@ -11,7 +11,7 @@
 
 // may need to change the Nodes, we'll see
 struct Env {
-  std::list<std::shared_ptr<Var>>
+  std::unordered_map<std::string, std::shared_ptr<Var>>
       env_vars; // map of all variables in the function
   std::unordered_map<std::string, std::shared_ptr<Func>>
       env_func; // map of all functions called
