@@ -53,3 +53,12 @@ void IR_manip::add_BB_to_worklist(llvm::Function *func,
   for (llvm::BasicBlock &BB : *func)
     worklist.push_back(&BB);
 }
+
+void IR_manip::add_inst_to_worklist(
+    llvm::Function *func, std::vector<llvm::Instruction *> &worklist) {
+  if (func == nullptr)
+    return;
+  for (llvm::inst_iterator I = llvm::inst_begin(func), E = llvm::inst_end(func);
+       I != E; ++I)
+    worklist.push_back(&*I);
+}

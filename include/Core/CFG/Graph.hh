@@ -11,6 +11,7 @@ struct Node {
   bool equal(const Node &other) const;
   int id;  // unique identifier
   int pos; // position in the source(todo)
+  std::string func_name;
   mutable std::list<std::shared_ptr<Arc>>
       arc_out; // arcs with this node as source
   mutable std::list<std::shared_ptr<Arc>>

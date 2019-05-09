@@ -24,6 +24,8 @@ public:
   void print_function(llvm::Function *func) const;
   static void add_BB_to_worklist(llvm::Function *func,
                                  std::vector<llvm::BasicBlock *> &worklist);
+  static void add_inst_to_worklist(llvm::Function *func,
+                                   std::vector<llvm::Instruction *> &worklist);
 
 private:
   std::string _ir_file;

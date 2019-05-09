@@ -27,6 +27,7 @@ int main(int ac, char **av) {
     return -1;
   }
 
-  CFG cfg(IR, "sub_400526_main");
+  //  CFG cfg(IR, "sub_400526_main");
+  CFG cfg(IR);
   return 0;
 }

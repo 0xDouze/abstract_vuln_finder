@@ -19,12 +19,10 @@ public:
   CFG(IR_manip &ir,
       const std::string &func_name); // creates cfg with only the init and the
                                      // specified function
-  const std::unordered_map<std::string, std::shared_ptr<Var>> &
-  get_cfg_vars() const;
-  const std::unordered_map<std::string, std::shared_ptr<Func>> &
-  get_cfg_funcs() const;
-  const std::unordered_set<std::shared_ptr<Node>> &get_cfg_nodes() const;
-  const std::unordered_set<std::shared_ptr<Arc>> &get_cfg_arcs() const;
+  const std::vector<std::shared_ptr<Var>> &get_cfg_vars() const;
+  const std::vector<std::shared_ptr<Func>> &get_cfg_funcs() const;
+  const std::vector<std::shared_ptr<Node>> &get_cfg_nodes() const;
+  const std::vector<std::shared_ptr<Arc>> &get_cfg_arcs() const;
   const std::shared_ptr<Node> &get_cfg_init_entry() const;
   const std::shared_ptr<Node> &get_cfg_init_exit() const;
   void add_cfg_var(std::shared_ptr<Var> var);
@@ -46,13 +44,13 @@ private:
   void print_node(std::fstream &file, const std::shared_ptr<Node> &node);
   void set_arcs_and_nodes(struct Env &env);
   // change the unordered_sets for std::unordered_set
-  std::unordered_map<std::string, std::shared_ptr<Var>>
+  std::vector<std::shared_ptr<Var>>
       _cfg_vars; // List of all the variables in the CFG
-  std::unordered_map<std::string, std::shared_ptr<Func>>
+  std::vector<std::shared_ptr<Func>>
       _cfg_funcs; // List of all the functions in the CFG
-  std::unordered_set<std::shared_ptr<Node>>
+  std::vector<std::shared_ptr<Node>>
       _cfg_nodes; // List of all the nodes in the CFG
-  std::unordered_set<std::shared_ptr<Arc>>
+  std::vector<std::shared_ptr<Arc>>
       _cfg_arcs; // List of all the arcs in the CFG
   std::shared_ptr<Node>
       _cfg_init_entry; // First node of code initializing the global variables
