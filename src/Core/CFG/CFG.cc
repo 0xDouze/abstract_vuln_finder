@@ -4,10 +4,11 @@
 CFG::CFG() {}
 
 CFG::CFG(IR_manip &ir) {
-  struct Env env;
-  TransformToCFG ttc(ir, env);
-  // set_cfg_init_entry(ir);
-  // set_cfg_init_exit(ir);
+  (void)ir;
+  //  struct Env env;
+  // TransformToCFG ttc;
+  // std::pair<std::shared_ptr<Node>, std::shared_ptr<Node>> inits =
+  //    ttc.set_cfg_entry(env, ir);
 }
 
 CFG::CFG(IR_manip &ir, const std::string &func_name) {
@@ -75,7 +76,10 @@ const std::shared_ptr<Node> &CFG::get_cfg_init_exit() const {
   return _cfg_init_exit;
 }
 
-void CFG::add_cfg_var(std::shared_ptr<Var> var) { _cfg_vars.push_back(var); }
+void CFG::add_cfg_var(std::shared_ptr<Var> var) {
+  if (var != nullptr)
+    _cfg_vars.push_back(var);
+}
 
 void CFG::add_cfg_func(std::shared_ptr<Func> func) {
   if (func != nullptr)
@@ -83,16 +87,21 @@ void CFG::add_cfg_func(std::shared_ptr<Func> func) {
 }
 
 void CFG::add_cfg_node(std::shared_ptr<Node> node) {
-  _cfg_nodes.push_back(node);
+  if (node != nullptr)
+    _cfg_nodes.push_back(node);
 }
 
-void CFG::add_cfg_arc(std::shared_ptr<Arc> arc) { _cfg_arcs.push_back(arc); }
+void CFG::add_cfg_arc(std::shared_ptr<Arc> arc) {
+  if (arc != nullptr)
+    _cfg_arcs.push_back(arc);
+}
 
 void CFG::set_cfg_init_entry(std::shared_ptr<Node> init_entry) {
   _cfg_init_entry = init_entry;
 }
 
 void CFG::set_cfg_init_entry(IR_manip &ir) {
+  (void)ir;
   //  TransformToCFG ttc(ir);
   //  struct Env env;
   //
@@ -108,11 +117,13 @@ void CFG::set_cfg_init_exit(std::shared_ptr<Node> init_exit) {
 }
 
 void CFG::set_cfg_init_exit(IR_manip &ir) {
-  //TransformToCFG ttc;
- // struct Env env;
- // _cfg_init_exit = ttc.convert_function_to_node(ir, env, "__mcsema_destructor");
-  //if (_cfg_init_exit == nullptr)
-   // return; // Fix: Make node from default function destructor
+  (void)ir;
+  // TransformToCFG ttc;
+  // struct Env env;
+  // _cfg_init_exit = ttc.convert_function_to_node(ir, env,
+  // "__mcsema_destructor");
+  // if (_cfg_init_exit == nullptr)
+  // return; // Fix: Make node from default function destructor
 }
 
 void CFG::print_arc(std::fstream &file, const std::shared_ptr<Arc> &arc) {

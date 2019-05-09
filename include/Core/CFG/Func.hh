@@ -1,5 +1,6 @@
 #pragma once
 #include "Graph.hh"
+#include "Var.hh"
 #include <any>
 #include <list>
 #include <map>
@@ -14,7 +15,8 @@ struct Func {
   std::shared_ptr<Node> func_entry;   // Entry node
   std::shared_ptr<Node> func_exit;    // Exit node
   std::vector<llvm::Argument *> args; // Arguments
-  std::map<std::shared_ptr<Node>, llvm::Value *> ret_val; // Return value
+  std::shared_ptr<Var> ret_val;
+  //  std::map<std::shared_ptr<Node>, llvm::Value *> ret_val; // Return value
   std::vector<std::shared_ptr<Arc>> func_calls; // list of calls to the function
 
   const std::vector<llvm::Argument *> &get_args() const;

@@ -1,4 +1,5 @@
 #pragma once
+#include "CFG.hh"
 #include "Env.hh"
 #include "Func.hh"
 #include "Graph.hh"
@@ -7,6 +8,7 @@
 #include <list>
 #include <llvm/ADT/StringMap.h>
 #include <llvm/IR/BasicBlock.h>
+#include <llvm/IR/Instructions.h>
 #include <llvm/IR/Value.h>
 #include <map>
 #include <memory>
@@ -15,7 +17,8 @@
 #include <vector>
 
 /* This class transforms the IR to be compatible with our own CFG.
- * Needs to be called for each functions.
+ * set_cfg_entry : gives a pair of entry and end nodes for the init function
+ * (constructor for now)
  */
 class TransformToCFG {
 public:
@@ -34,12 +37,27 @@ public:
   //                     const llvm::BasicBlock::iterator begin,
   //                     llvm::BasicBlock::iterator current,
   //                     const llvm::BasicBlock::iterator end);
-  TransformToCFG(IR_manip &ir, struct Env &env);
+  TransformToCFG();
+  CFG transform_ir_to_cfg(const IR_manip &ir);
 
 private:
+  std::shared_ptr<Node> create_node(const std::string &pos);
+  std::shared_ptr<Arc> create_arc(std::shared_ptr<Node> src,
+                                  std::shared_ptr<Node> dst,
+                                  llvm::Instruction *inst);
+  std::shared_ptr<Var> create_var(const std::string &name,
+                                  std::shared_ptr<Arc> pos, llvm::Type *type);
+
+  std::shared_ptr<Func> create_func(const std::string &name,
+                                    std::shared_ptr<Node> entry,
+                                    std::shared_ptr<Node> exit,
+                                    int pos,
+                                    const std::vector<llvm::Argument *> &args,
+                                    std::shared_ptr<Var> ret);
+
   unsigned _node_cnt; // node counter
   unsigned _arc_cnt;  // arc counter
   unsigned _var_cnt;  // var counter
   unsigned _func_cnt; // func counter
-  struct Env _env;
+  CFG _cfg;
 };

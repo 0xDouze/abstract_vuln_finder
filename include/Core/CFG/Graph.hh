@@ -9,9 +9,9 @@ struct Node {
   Node(const Node &other);
   Node &operator=(const Node &other);
   bool equal(const Node &other) const;
-  int id;  // unique identifier
-  int pos; // position in the source(todo)
-  std::string func_name;
+  int id; // unique identifier
+  std::string
+      pos; // position in the source(todo) for now it's the name of the function
   mutable std::list<std::shared_ptr<Arc>>
       arc_out; // arcs with this node as source
   mutable std::list<std::shared_ptr<Arc>>

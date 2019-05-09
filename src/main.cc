@@ -1,5 +1,6 @@
 #include "CFG.hh"
 #include "IR_manip.hh"
+#include "TransformToCFG.hh"
 #include <ios>
 #include <iostream>
 #include <llvm/IR/BasicBlock.h>
@@ -26,8 +27,8 @@ int main(int ac, char **av) {
     Err.print(av[0], llvm::errs());
     return -1;
   }
-
-  //  CFG cfg(IR, "sub_400526_main");
-  CFG cfg(IR);
+  CFG cfg;
+  TransformToCFG tcc;
+  cfg = tcc.transform_ir_to_cfg(IR);
   return 0;
 }

@@ -3,7 +3,7 @@
 #include "Func.hh"
 #include "Graph.hh"
 #include "IR_manip.hh"
-#include "TransformToCFG.hh"
+//#include "TransformToCFG.hh"
 #include "Var.hh"
 #include <fstream>
 #include <list>
