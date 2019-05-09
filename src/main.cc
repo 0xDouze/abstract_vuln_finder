@@ -27,6 +27,11 @@ int main(int ac, char **av) {
     Err.print(av[0], llvm::errs());
     return -1;
   }
+  for (llvm::InstIterator I = llvm::inst_begin(func), E = llvm::inst_end(func);
+       I != E; ++I) {
+    llvm::errs() << "result: " << llvm::cast<llvm::Value>(&*I)
+                 << ", instruction: " << *I << "\n";
+  }
   CFG cfg;
   TransformToCFG tcc;
   cfg = tcc.transform_ir_to_cfg(IR);

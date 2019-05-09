@@ -41,17 +41,16 @@ public:
   CFG transform_ir_to_cfg(const IR_manip &ir);
 
 private:
-  std::shared_ptr<Node> create_node(const std::string &pos);
+  std::shared_ptr<Node> create_node(int pos);
   std::shared_ptr<Arc> create_arc(std::shared_ptr<Node> src,
                                   std::shared_ptr<Node> dst,
                                   llvm::Instruction *inst);
-  std::shared_ptr<Var> create_var(const std::string &name,
+  std::shared_ptr<Var> create_var(llvm::Value *val,
                                   std::shared_ptr<Arc> pos, llvm::Type *type);
 
   std::shared_ptr<Func> create_func(const std::string &name,
                                     std::shared_ptr<Node> entry,
-                                    std::shared_ptr<Node> exit,
-                                    int pos,
+                                    std::shared_ptr<Node> exit, int pos,
                                     const std::vector<llvm::Argument *> &args,
                                     std::shared_ptr<Var> ret);
 

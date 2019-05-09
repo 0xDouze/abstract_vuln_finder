@@ -9,10 +9,12 @@
 struct Var {
   Var() : id(0) {}
   const std::string get_function_name() const {
+    if (pos == nullptr)
+      return nullptr;
     return pos->inst->getParent()->getParent()->getName().str();
   }
   int id;           // unique variable identifier
-  std::string name; // name of the variable (if found)
+  llvm::Value *val; // name of the variable (if found)
   llvm::Type *type; // type
   std::shared_ptr<Arc>
       pos; // position in the program for now it's the function name
