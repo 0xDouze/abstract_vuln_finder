@@ -34,8 +34,8 @@ int main(int ac, char **av) {
   //                 << ", instruction: " << *I << "\n";
   //  }
   CFG cfg;
-  TransformToCFG tcc;
-  cfg = tcc.transform_ir_to_cfg(IR);
+  TransformToCFG tcc(IR);
+  cfg = tcc.transform_ir_to_cfg();
   std::vector<std::shared_ptr<Node>> vect = cfg.get_cfg_nodes();
   //  for (auto &V : vect) {
   //   std::cout << V->id << "\n";

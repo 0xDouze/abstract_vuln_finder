@@ -7,7 +7,7 @@
 #include <string>
 
 struct Var {
-  Var() : id(0) {}
+  Var(bool retval = false) : id(0), isRetVal(retval) {}
   const std::string get_function_name() const {
     if (pos == nullptr)
       return nullptr;
@@ -19,4 +19,5 @@ struct Var {
   llvm::Type *type; // type
   std::shared_ptr<Arc>
       pos; // position in the program for now it's the function name
+  bool isRetVal;
 };
