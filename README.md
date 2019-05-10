@@ -13,7 +13,9 @@ How to use:
 mkdir build
 cd build
 cmake ..
-./abstract_vuln [IR file]
+[insert mcsema commands to get bc file]
+opt -instnamer -O3 [BC file] -o [BC file]
+./abstract_vuln [IR/BC file]
 
 Or you can use the shared library [abstract_vuln_finder.so]
 
