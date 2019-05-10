@@ -84,8 +84,38 @@ std::vector<llvm::Instruction *>::iterator &TransformToCFG::add_inst(
   return curr;
 }
 
+std::shared_ptr<Node> TransformToCFG::append_inst(
+    std::shared_ptr<Node> entry,
+    std::vector<llvm::Instruction *>::iterator &begin,
+    const std::vector<llvm::Instruction *>::iterator &end) {
+
+  if (begin == end)
+    return entry;
+  else {
+    std::shared_ptr<Node> next = create_node(0);
+    create_arc(entry, next, *begin);
+    std::advance(begin, 1);
+    return append_inst(next, begin, end);
+
+  }
+}
+
+std::shared_ptr<Node> TransformToCFG::prepend_inst(
+    std::shared_ptr<Node> exit,
+    std::vector<llvm::Instruction *>::iterator &begin,
+    const std::vector<llvm::Instruction *>::iterator &end) {
+
+  if (begin == end)
+    return exit;
+  else {
+    std::shared_ptr<Node> prev = create_node(0);
+    create_arc(prev, exit, *begin);
+    std::advance(begin, 1);
+    return prepend_inst(prev, begin, end);
+  }
+}
+
 CFG TransformToCFG::transform_ir_to_cfg(IR_manip &ir) {
-  (void)ir;
   std::shared_ptr<Node> init_entry = create_node(0);
   std::shared_ptr<Node> init_exit = create_node(0);
   llvm::Function *func = ir.get_function_handle("main");

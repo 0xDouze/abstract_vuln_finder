@@ -43,7 +43,8 @@ int main(int ac, char **av) {
   //   llvm::errs() << (*I->inst) << "\n";
   //}
   std::shared_ptr<Node> init = *vect.begin();
-  llvm::errs() << init->id << " " << (*init->arc_out.begin())->inst->getOpcodeName() << " "
+  llvm::errs() << init->id << " "
+               << (*init->arc_out.begin())->inst->getOpcodeName() << " "
                << (*init->arc_out.begin())->node_out->id << "\n";
   //}
   cfg.print_func_to_dot((*cfg.get_cfg_nodes().begin()));

@@ -60,6 +60,14 @@ private:
            std::vector<llvm::Instruction *>::iterator &curr,
            const std::vector<llvm::Instruction *>::iterator &end);
 
+  std::shared_ptr<Node> append_inst(std::shared_ptr<Node> entry,
+              std::vector<llvm::Instruction *>::iterator &begin,
+              const std::vector<llvm::Instruction *>::iterator &end);
+
+  std::shared_ptr<Node> prepend_inst(std::shared_ptr<Node> exit,
+              std::vector<llvm::Instruction *>::iterator &begin,
+              const std::vector<llvm::Instruction *>::iterator &end);
+
   unsigned _node_cnt; // node counter
   unsigned _arc_cnt;  // arc counter
   unsigned _var_cnt;  // var counter
