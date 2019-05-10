@@ -13,6 +13,7 @@ struct Var {
       return nullptr;
     return pos->inst->getParent()->getParent()->getName().str();
   }
+  const std::string get_var_name() const { return val->getName(); }
   int id;           // unique variable identifier
   llvm::Value *val; // name of the variable (if found)
   llvm::Type *type; // type
