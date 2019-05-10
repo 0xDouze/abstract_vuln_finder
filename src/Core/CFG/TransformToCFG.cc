@@ -12,7 +12,7 @@ void TransformToCFG::set_constructor() {
   _cfg.set_cfg_init_entry(init_entry);
   _cfg.set_cfg_init_exit(init_exit);
 
-  struct Env env;
+  std::shared_ptr<struct Env> env = std::make_shared<struct Env>();
   // will need to be modified in due time, but for now it's ok
   llvm::Function *func = _ir.get_function_handle("__mcsema_constructor");
   if (func == nullptr)
@@ -29,18 +29,33 @@ void TransformToCFG::set_constructor() {
       create_func(func->getName(), init_entry, init_exit, 0, args, retval);
 
   _func_envs.push_back(std::make_pair(env, func_desc));
+  get_data_pass(func_desc, blocks);
   for (auto &BB : blocks)
-  {
-    get_data_pass(func_desc, BB);
-  }
+    llvm::errs() << *BB << "\n";
+  for (auto &BB : env->block_labels)
+    llvm::errs() << BB.first << "\n";
   //  get_data_pass();
   // create_graph_pass();
 }
 
-void TransformToCFG::get_data_pass(std::shared_ptr<Func> func_desc, llvm::BasicBlock *bb)
-{
-  (void)func_desc;
-  (void)bb;
+void TransformToCFG::get_data_pass(std::shared_ptr<Func> func_desc,
+                                   std::vector<llvm::BasicBlock *> blocks) {
+  std::shared_ptr<struct Env> env = nullptr;
+  for (auto &E : _func_envs)
+    if (func_desc == E.second)
+      env = E.first;
+  if (env == nullptr) {
+    llvm::errs() << "Couldn't find function" << func_desc->name
+                 << "in cfg environnement, an error occured internally\n";
+    return;
+  }
+  for (auto &BB : blocks)
+  {
+    if (BB->hasName())
+      env->block_labels.insert(std::make_pair(BB->getName(), BB));
+    else
+      std::cout << "ca a pas de nom putain\n";
+  }
 }
 
 std::shared_ptr<Node> TransformToCFG::create_node(int pos) {
@@ -100,10 +115,12 @@ std::shared_ptr<Var> TransformToCFG::create_var(llvm::Value *val,
   return var;
 }
 
-std::shared_ptr<Func> TransformToCFG::create_func(
-    const std::string &name, std::shared_ptr<Node> entry,
-    std::shared_ptr<Node> exit, int pos,
-    const std::vector<llvm::Argument *> &args, std::vector<std::shared_ptr<Var>> ret) {
+std::shared_ptr<Func>
+TransformToCFG::create_func(const std::string &name,
+                            std::shared_ptr<Node> entry,
+                            std::shared_ptr<Node> exit, int pos,
+                            const std::vector<llvm::Argument *> &args,
+                            std::vector<std::shared_ptr<Var>> ret) {
   std::shared_ptr<Func> func = std::make_shared<Func>();
   func->id = _func_cnt++;
   func->name = name;

@@ -21,6 +21,7 @@ struct Env {
   std::vector<std::shared_ptr<Var>>
       env_return; // variable that contains the returned value if
                   // the terminator is a return
+  std::map<std::string, llvm::BasicBlock *> block_labels;
   std::map<std::string, std::shared_ptr<Node>> env_labels; // map of all labels
   std::map<std::string, std::shared_ptr<Node>>
       env_gotos; // list of gotos contains Node and the name of the label
