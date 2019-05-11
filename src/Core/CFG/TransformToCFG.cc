@@ -18,11 +18,6 @@ void TransformToCFG::translate_func_to_cfg(llvm::Function *func,
 
   _ir.add_BB_to_worklist(func, blocks);
 
-  // llvm::errs() << func->getName() << "\n";
-  // for (auto arg = func->arg_begin(); arg != func->arg_end(); ++arg) {
-  //   args.push_back(arg);
-  //   llvm::errs() << *arg << "\n";
-  // }
   func_desc = create_func(func->getName(), entry, exit, 0, args, retval);
   _func_envs.push_back(std::make_pair(env, func_desc));
   get_data_pass(func_desc, blocks);
@@ -36,17 +31,52 @@ void TransformToCFG::set_constructor() {
   _cfg.set_cfg_init_exit(init_exit);
 
   // will need to be modified in due time, but for now it's ok
-  llvm::Function *func = _ir.get_function_handle("__mcsema_constructor");
+  llvm::Function *func = _ir.get_function_handle("main");
   if (func == nullptr)
     return;
 
   translate_func_to_cfg(func, init_entry, init_exit);
+  for (auto &F : _func_envs) {
+    auto &env = F.first;
+    std::cout << "\n\nprint func name " << F.second->name << "\n";
+    for (auto &V : env->env_vars)
+      std::cout << "print var name " << V->get_var_name() << "\n";
+  }
 }
 
 static bool compare_function(llvm::Function *func1, llvm::Function *func2) {
   return func1->getName().equals(func2->getName());
 }
 
+// i dont think we'll have to handle storeinsts, we should be able to use the
+// Use class to do that. Not sure if it will work.
+void TransformToCFG::set_func_env_var(std::shared_ptr<struct Env> env,
+                                      llvm::Instruction &inst) {
+  llvm::Value *val = llvm::cast<llvm::Value>(&inst);
+  if (val == nullptr)
+    return;
+
+  else if (std::find_if(env->env_vars.begin(), env->env_vars.end(),
+                        [val](std::shared_ptr<Var> v) -> bool {
+                          return v->get_var_name() == val->getName();
+                        }) != env->env_vars.end() &&
+           val->getName() != "")
+    return;
+
+  else {
+    std::shared_ptr<Var> var;
+    if (auto *R = llvm::dyn_cast<llvm::ReturnInst>(&inst)) {
+      if (R->getReturnValue() == nullptr)
+        return;
+      else
+        var = create_var(R->getReturnValue(), nullptr, R->getType(), true);
+    } else if (val->getName() != "")
+      var = create_var(val, nullptr, val->getType());
+    else
+      return;
+    env->env_vars.push_back(var);
+  }
+}
 void TransformToCFG::get_data_pass(std::shared_ptr<Func> func_desc,
                                    std::vector<llvm::BasicBlock *> blocks) {
   std::shared_ptr<struct Env> env = nullptr;
@@ -63,7 +93,7 @@ void TransformToCFG::get_data_pass(std::shared_ptr<Func> func_desc,
     if (BB->hasName())
       env->block_labels.insert(std::make_pair(BB->getName(), BB));
     for (llvm::Instruction &I : *BB) {
-      llvm::Value *val = llvm::cast<llvm::Value>(&I);
+      set_func_env_var(env, I);
       if (llvm::isa<llvm::CallInst>(I)) {
         llvm::CallInst *callinst = llvm::cast<llvm::CallInst>(&I);
         llvm::Function *called_func = callinst->getCalledFunction();

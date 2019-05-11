@@ -21,18 +21,6 @@ int main(int ac, char **av) {
     return -1;
   }
 
-  llvm::Function *func = IR.get_function_handle("main");
-  if (func == nullptr) {
-    std::cout << "func not found" << std::endl;
-    Err.print(av[0], llvm::errs());
-    return -1;
-  }
-  //  for (llvm::InstIterator I = llvm::inst_begin(func), E =
-  //  llvm::inst_end(func);
-  //       I != E; ++I) {
-  //    llvm::errs() << "result: " << llvm::cast<llvm::Value>(&*I)->getName()
-  //                 << ", instruction: " << *I << "\n";
-  //  }
   CFG cfg;
   TransformToCFG tcc(IR);
   cfg = tcc.transform_ir_to_cfg();

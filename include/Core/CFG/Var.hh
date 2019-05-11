@@ -5,20 +5,19 @@
 #include <llvm/IR/Value.h>
 #include <memory>
 #include <string>
+#include <llvm/ADT/Twine.h>
 
 struct Var {
   Var(bool retval = false) : id(0), isRetVal(retval) {}
-  const std::string get_function_name() const {
-    if (pos == nullptr)
-      return nullptr;
-    return pos->inst->getParent()->getParent()->getName().str();
-  }
-  const std::string get_var_name() const { return val->getName(); }
+
+  const std::string get_var_name() {
+    if (isRetVal)
+      return llvm::Twine("__ret").concat(llvm::Twine(id)).concat(llvm::Twine("_")).concat(llvm::Twine(val->getName())).str();
+    return val->getName(); }
   int id;           // unique variable identifier
   llvm::Value *val; // name of the variable (if found)
   llvm::Type *type; // type
   std::shared_ptr<Arc>
       pos; // position in the program for now it's the function name
-  llvm::Instruction *inst; // instruction where it is created
   bool isRetVal;
 };

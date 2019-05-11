@@ -80,12 +80,14 @@ private:
   void translate_func_to_cfg(llvm::Function *func, std::shared_ptr<Node> entry,
                              std::shared_ptr<Node> exit);
 
+  void set_func_env_var(std::shared_ptr<struct Env>, llvm::Instruction &inst);
+
   unsigned _node_cnt; // node counter
   unsigned _arc_cnt;  // arc counter
   unsigned _var_cnt;  // var counter
   unsigned _func_cnt; // func counter
   IR_manip &_ir;      // ir_manip ref
-  CFG _cfg;
+  CFG _cfg;           // whole cfg, is std::moved at the end of the computation
   std::vector<std::pair<std::shared_ptr<struct Env>, std::shared_ptr<Func>>>
-      _func_envs;
+      _func_envs; // vector of function environment
 };
