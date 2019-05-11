@@ -19,5 +19,6 @@ struct Var {
   llvm::Type *type; // type
   std::shared_ptr<Arc>
       pos; // position in the program for now it's the function name
+  llvm::Instruction *inst; // instruction where it is created
   bool isRetVal;
 };

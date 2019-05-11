@@ -1,9 +1,32 @@
 #include "TransformToCFG.hh"
+#include <algorithm>
 #include <iterator>
 
 TransformToCFG::TransformToCFG(IR_manip &ir)
     : _node_cnt(0), _arc_cnt(0), _var_cnt(0), _func_cnt(0), _ir(ir), _cfg() {
   set_constructor();
+}
+
+void TransformToCFG::translate_func_to_cfg(llvm::Function *func,
+                                           std::shared_ptr<Node> entry,
+                                           std::shared_ptr<Node> exit) {
+  std::shared_ptr<struct Env> env = std::make_shared<struct Env>();
+  std::vector<llvm::BasicBlock *> blocks;
+  std::vector<llvm::Argument *> args;
+  std::vector<std::shared_ptr<Var>> retval;
+  std::shared_ptr<Func> func_desc;
+
+  _ir.add_BB_to_worklist(func, blocks);
+
+  // llvm::errs() << func->getName() << "\n";
+  // for (auto arg = func->arg_begin(); arg != func->arg_end(); ++arg) {
+  //   args.push_back(arg);
+  //   llvm::errs() << *arg << "\n";
+  // }
+  func_desc = create_func(func->getName(), entry, exit, 0, args, retval);
+  _func_envs.push_back(std::make_pair(env, func_desc));
+  get_data_pass(func_desc, blocks);
+  // create_graph_pass();
 }
 
 void TransformToCFG::set_constructor() {
@@ -12,30 +35,16 @@ void TransformToCFG::set_constructor() {
   _cfg.set_cfg_init_entry(init_entry);
   _cfg.set_cfg_init_exit(init_exit);
 
-  std::shared_ptr<struct Env> env = std::make_shared<struct Env>();
   // will need to be modified in due time, but for now it's ok
   llvm::Function *func = _ir.get_function_handle("__mcsema_constructor");
   if (func == nullptr)
     return;
 
-  std::vector<llvm::BasicBlock *> blocks;
-  _ir.add_BB_to_worklist(func, blocks);
-  std::vector<llvm::Argument *> args;
-  for (auto &A : func->args())
-    args.push_back(&A);
+  translate_func_to_cfg(func, init_entry, init_exit);
+}
 
-  std::vector<std::shared_ptr<Var>> retval;
-  std::shared_ptr<Func> func_desc =
-      create_func(func->getName(), init_entry, init_exit, 0, args, retval);
-
-  _func_envs.push_back(std::make_pair(env, func_desc));
-  get_data_pass(func_desc, blocks);
-  for (auto &BB : blocks)
-    llvm::errs() << *BB << "\n";
-  for (auto &BB : env->block_labels)
-    llvm::errs() << BB.first << "\n";
-  //  get_data_pass();
-  // create_graph_pass();
+static bool compare_function(llvm::Function *func1, llvm::Function *func2) {
+  return func1->getName().equals(func2->getName());
 }
 
 void TransformToCFG::get_data_pass(std::shared_ptr<Func> func_desc,
@@ -49,12 +58,36 @@ void TransformToCFG::get_data_pass(std::shared_ptr<Func> func_desc,
                  << "in cfg environnement, an error occured internally\n";
     return;
   }
-  for (auto &BB : blocks)
-  {
+
+  for (auto &BB : blocks) {
     if (BB->hasName())
       env->block_labels.insert(std::make_pair(BB->getName(), BB));
-    else
-      std::cout << "ca a pas de nom putain\n";
+    for (llvm::Instruction &I : *BB) {
+      llvm::Value *val = llvm::cast<llvm::Value>(&I);
+      if (llvm::isa<llvm::CallInst>(I)) {
+        llvm::CallInst *callinst = llvm::cast<llvm::CallInst>(&I);
+        llvm::Function *called_func = callinst->getCalledFunction();
+        if (called_func == NULL)
+          continue;
+        env->call_list.push_back(callinst->getCalledFunction());
+      }
+    }
+  }
+
+  std::sort(env->call_list.begin(), env->call_list.end(), compare_function);
+  auto last = std::unique(env->call_list.begin(), env->call_list.end());
+  env->call_list.erase(last, env->call_list.end());
+  for (auto &F : env->call_list) {
+    bool exists = false;
+    for (auto &Func_env : _cfg.get_cfg_funcs())
+      if ((exists = F->getName().equals(Func_env->name)))
+        break;
+
+    if (exists)
+      continue;
+    std::shared_ptr<Node> entry = create_node(0);
+    std::shared_ptr<Node> exit = create_node(0);
+    translate_func_to_cfg(F, entry, exit);
   }
 }
 

@@ -74,7 +74,11 @@ private:
 
   void set_constructor();
 
-  void get_data_pass(std::shared_ptr<Func> func_desc, std::vector<llvm::BasicBlock*> blocks);
+  void get_data_pass(std::shared_ptr<Func> func_desc,
+                     std::vector<llvm::BasicBlock *> blocks);
+
+  void translate_func_to_cfg(llvm::Function *func, std::shared_ptr<Node> entry,
+                             std::shared_ptr<Node> exit);
 
   unsigned _node_cnt; // node counter
   unsigned _arc_cnt;  // arc counter
@@ -82,5 +86,6 @@ private:
   unsigned _func_cnt; // func counter
   IR_manip &_ir;      // ir_manip ref
   CFG _cfg;
-  std::vector<std::pair<std::shared_ptr<struct Env>, std::shared_ptr<Func>>> _func_envs;
+  std::vector<std::pair<std::shared_ptr<struct Env>, std::shared_ptr<Func>>>
+      _func_envs;
 };
