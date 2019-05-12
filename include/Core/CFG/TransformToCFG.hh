@@ -56,12 +56,14 @@ private:
                                     const std::vector<llvm::Argument *> &args,
                                     std::vector<std::shared_ptr<Var>> ret);
 
+  // FIXME: Remove the curr iterator, it's useless
   std::vector<llvm::Instruction *>::iterator &
   add_inst(std::shared_ptr<Node> entry, std::shared_ptr<Node> exit,
            const std::vector<llvm::Instruction *>::iterator &begin,
            std::vector<llvm::Instruction *>::iterator &curr,
            const std::vector<llvm::Instruction *>::iterator &end);
 
+  //FIXME: Why did I put vector iterators? The question remains unanswered to this day
   std::shared_ptr<Node>
   append_inst(std::shared_ptr<Node> entry,
               std::vector<llvm::Instruction *>::iterator &begin,
@@ -77,14 +79,24 @@ private:
   void get_data_pass(std::shared_ptr<Func> func_desc,
                      std::vector<llvm::BasicBlock *> blocks);
 
+  void create_graph_pass(std::shared_ptr<struct Env> env,
+                         std::shared_ptr<Func> func_desc,
+                         std::vector<llvm::BasicBlock *> blocks);
+
+  void set_normal_and_backward_edges(std::shared_ptr<struct Env> env, std::shared_ptr<Func> func_desc, std::vector<llvm::BasicBlock *> blocks);
+
+  void set_forward_edges_and_calls(std::shared_ptr<struct Env> env, std::shared_ptr<Func> func_desc, std::vector<llvm::BasicBlock *> blocks);
+
   void translate_func_to_cfg(llvm::Function *func, std::shared_ptr<Node> entry,
                              std::shared_ptr<Node> exit);
 
-  void set_func_env_var(std::shared_ptr<struct Env>, llvm::Instruction &inst);
+  void set_func_env_var(std::shared_ptr<struct Env>,
+                        std::shared_ptr<Func> func_desc,
+                        llvm::Instruction &inst);
 
-  unsigned _node_cnt; // node counter
-  unsigned _arc_cnt;  // arc counter
-  unsigned _var_cnt;  // var counter
+  unsigned long long _node_cnt; // node counter
+  unsigned long long _arc_cnt;  // arc counter
+  unsigned long long _var_cnt;  // var counter
   unsigned _func_cnt; // func counter
   IR_manip &_ir;      // ir_manip ref
   CFG _cfg;           // whole cfg, is std::moved at the end of the computation

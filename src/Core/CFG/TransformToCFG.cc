@@ -17,11 +17,13 @@ void TransformToCFG::translate_func_to_cfg(llvm::Function *func,
   std::shared_ptr<Func> func_desc;
 
   _ir.add_BB_to_worklist(func, blocks);
-
   func_desc = create_func(func->getName(), entry, exit, 0, args, retval);
   _func_envs.push_back(std::make_pair(env, func_desc));
   get_data_pass(func_desc, blocks);
-  // create_graph_pass();
+  if (blocks.empty())
+    return;
+
+  create_graph_pass(env, func_desc, blocks);
 }
 
 void TransformToCFG::set_constructor() {
@@ -31,16 +33,20 @@ void TransformToCFG::set_constructor() {
   _cfg.set_cfg_init_exit(init_exit);
 
   // will need to be modified in due time, but for now it's ok
-  llvm::Function *func = _ir.get_function_handle("main");
+  llvm::Function *func = _ir.get_function_handle("__mcsema_constructor");
   if (func == nullptr)
     return;
 
   translate_func_to_cfg(func, init_entry, init_exit);
   for (auto &F : _func_envs) {
-    auto &env = F.first;
+    // auto &env = F.first;
     std::cout << "\n\nprint func name " << F.second->name << "\n";
-    for (auto &V : env->env_vars)
-      std::cout << "print var name " << V->get_var_name() << "\n";
+    if (F.second->func_entry->arc_in.empty() &&
+        F.second->func_entry->arc_out.empty())
+      std::cout << "func empty\n";
+    _cfg.print_func_to_dot(F.second->func_entry);
+    //    for (auto &V : env->env_vars)
+    //     std::cout << "print var name " << V->get_var_name() << "\n";
   }
 }
 
@@ -51,11 +57,13 @@ static bool compare_function(llvm::Function *func1, llvm::Function *func2) {
 // i dont think we'll have to handle storeinsts, we should be able to use the
 // Use class to do that. Not sure if it will work.
 void TransformToCFG::set_func_env_var(std::shared_ptr<struct Env> env,
+                                      std::shared_ptr<Func> func_desc,
                                       llvm::Instruction &inst) {
   llvm::Value *val = llvm::cast<llvm::Value>(&inst);
   if (val == nullptr)
     return;
 
+  // the val->getName() == "" when an LLVM instruction does not return a value
   else if (std::find_if(env->env_vars.begin(), env->env_vars.end(),
                         [val](std::shared_ptr<Var> v) -> bool {
                           return v->get_var_name() == val->getName();
@@ -68,8 +76,10 @@ void TransformToCFG::set_func_env_var(std::shared_ptr<struct Env> env,
     if (auto *R = llvm::dyn_cast<llvm::ReturnInst>(&inst)) {
       if (R->getReturnValue() == nullptr)
         return;
-      else
+      else {
         var = create_var(R->getReturnValue(), nullptr, R->getType(), true);
+        func_desc->ret_val.push_back(var);
+      }
     } else if (val->getName() != "")
       var = create_var(val, nullptr, val->getType());
     else
@@ -77,6 +87,7 @@ void TransformToCFG::set_func_env_var(std::shared_ptr<struct Env> env,
     env->env_vars.push_back(var);
   }
 }
+
 void TransformToCFG::get_data_pass(std::shared_ptr<Func> func_desc,
                                    std::vector<llvm::BasicBlock *> blocks) {
   std::shared_ptr<struct Env> env = nullptr;
@@ -89,11 +100,13 @@ void TransformToCFG::get_data_pass(std::shared_ptr<Func> func_desc,
     return;
   }
 
+  if (blocks.empty())
+    return;
   for (auto &BB : blocks) {
     if (BB->hasName())
       env->block_labels.insert(std::make_pair(BB->getName(), BB));
     for (llvm::Instruction &I : *BB) {
-      set_func_env_var(env, I);
+      set_func_env_var(env, func_desc, I);
       if (llvm::isa<llvm::CallInst>(I)) {
         llvm::CallInst *callinst = llvm::cast<llvm::CallInst>(&I);
         llvm::Function *called_func = callinst->getCalledFunction();
@@ -121,6 +134,71 @@ void TransformToCFG::get_data_pass(std::shared_ptr<Func> func_desc,
   }
 }
 
+void TransformToCFG::set_forward_edges_and_calls(
+    std::shared_ptr<struct Env> env, std::shared_ptr<Func> func_desc,
+    std::vector<llvm::BasicBlock *> blocks) {
+  if (env == nullptr || func_desc == nullptr || blocks.empty()) {
+    llvm::errs() << "nullptr found in " << __FILE__ << "at line " << __LINE__
+                 << " cannot continue \n";
+    return;
+  }
+}
+
+void TransformToCFG::set_normal_and_backward_edges(
+    std::shared_ptr<struct Env> env, std::shared_ptr<Func> func_desc,
+    std::vector<llvm::BasicBlock *> blocks) {
+  if (env == nullptr || func_desc == nullptr || blocks.empty()) {
+    llvm::errs() << "nullptr found in " << __FILE__ << "at line " << __LINE__
+                 << " cannot continue \n";
+    return;
+  }
+
+  auto entry_node = func_desc->func_entry;
+  if (entry_node == nullptr)
+    std::cout << "entry node is null\n";
+
+  std::vector<llvm::Instruction *> inst_list;
+
+  for (auto B = blocks.begin(), E = blocks.end(); B != E; ++B) {
+    if (*B == nullptr)
+      return;
+    for (llvm::Instruction &I : **B)
+      inst_list.push_back(&I);
+    auto it = inst_list.begin();
+    if (std::next(B, 1) == blocks.end())
+      add_inst(entry_node, func_desc->func_exit, inst_list.begin(), it,
+               inst_list.end());
+    else
+      entry_node = append_inst(entry_node, it, inst_list.end());
+  }
+}
+
+void TransformToCFG::create_graph_pass(std::shared_ptr<struct Env> env,
+                                       std::shared_ptr<Func> func_desc,
+                                       std::vector<llvm::BasicBlock *> blocks) {
+  //  if (env == nullptr || func_desc == nullptr || blocks.empty()) {
+  //    llvm::errs() << "nullptr found in " << __FILE__ << "at line " <<
+  //    __LINE__
+  //                 << " cannot continue \n";
+  //    return;
+  //  }
+
+  if (env == nullptr) {
+    llvm::errs() << "env not found\n";
+    return;
+  }
+  if (func_desc == nullptr) {
+    llvm::errs() << "func_desc not found\n";
+    return;
+  }
+  if (blocks.empty()) {
+    llvm::errs() << "bb empty\n";
+    return;
+  }
+  set_normal_and_backward_edges(env, func_desc, blocks);
+  set_forward_edges_and_calls(env, func_desc, blocks);
+}
+
 std::shared_ptr<Node> TransformToCFG::create_node(int pos) {
   std::shared_ptr<Node> node = std::make_shared<Node>();
   node->id = _node_cnt++;
@@ -132,6 +210,19 @@ std::shared_ptr<Node> TransformToCFG::create_node(int pos) {
 std::shared_ptr<Arc> TransformToCFG::create_arc(std::shared_ptr<Node> src,
                                                 std::shared_ptr<Node> dst,
                                                 llvm::Instruction *inst) {
+  if (inst == nullptr)
+    return nullptr;
+
+  std::shared_ptr<struct Env> env = nullptr;
+  for (auto &V : _func_envs)
+    if (V.second->name == inst->getParent()->getParent()->getName()) {
+      env = V.first;
+      break;
+    }
+
+  if (env == nullptr)
+    return nullptr;
+
   std::shared_ptr<Arc> arc = std::make_shared<Arc>();
   arc->id = _arc_cnt++;
   arc->node_in = src;
@@ -141,26 +232,28 @@ std::shared_ptr<Arc> TransformToCFG::create_arc(std::shared_ptr<Node> src,
   src->arc_out.push_back(arc);
   _cfg.add_cfg_arc(arc);
 
-  if (llvm::isa<llvm::CallInst>(*inst)) {
-    llvm::CallInst *call = llvm::cast<llvm::CallInst>(inst);
-    (void)call;
-  }
-
-  if (llvm::cast<llvm::Value>(inst)->getName() != "") {
-    std::shared_ptr<Var> var = nullptr;
-    for (auto &V : _cfg.get_cfg_vars()) {
-      if (V->val == llvm::cast<llvm::Value>(inst)) {
-        var = V;
-        var->pos = arc;
+  if (auto retval = llvm::dyn_cast<llvm::ReturnInst>(inst)) {
+    if (retval == nullptr)
+      return arc;
+    for (auto &V : env->env_vars)
+      if (V->isRetVal &&
+          (retval->getReturnValue()->getName() == V->val->getName())) {
+        V->pos = arc;
+        break;
       }
-    }
-
-    if (var == nullptr) {
-      var = create_var(llvm::cast<llvm::Value>(inst), arc,
-                       llvm::cast<llvm::Value>(inst)->getType());
-      _cfg.add_cfg_var(var);
-    }
   }
+
+  if (auto val = llvm::dyn_cast<llvm::Value>(inst)) {
+    if (val->getName() == "")
+      return arc;
+    else
+      for (auto &V : env->env_vars)
+        if (val->getName() == V->val->getName()) {
+          V->pos = arc;
+          break;
+        }
+  }
+
   return arc;
 }
 
@@ -204,10 +297,10 @@ std::vector<llvm::Instruction *>::iterator &TransformToCFG::add_inst(
   if (curr == end)
     return curr;
   else if ((std::next(curr, 1) == end)) {
-    std::cout << entry->id << " " << exit->id << " ici next\n";
+   // std::cout << entry->id << " " << exit->id << " ici next\n";
     create_arc(entry, exit, *curr);
   } else {
-    std::cout << "ici pas next " << entry->id << "\n";
+   // std::cout << "ici pas next " << entry->id << "\n";
     std::shared_ptr<Node> next = create_node(0);
     create_arc(entry, next, *curr);
     std::advance(curr, 1);
