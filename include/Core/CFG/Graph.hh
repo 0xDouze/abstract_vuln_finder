@@ -11,6 +11,7 @@ struct Node {
   bool equal(const Node &other) const;
   int id;  // unique identifier
   int pos; // position in the source(todo) for now it's the name of the function
+  std::string label;
   mutable std::list<std::shared_ptr<Arc>>
       arc_out; // arcs with this node as source
   mutable std::list<std::shared_ptr<Arc>>
@@ -26,4 +27,5 @@ struct Arc {
   std::shared_ptr<Node> node_out; // node with this arc as source
   std::shared_ptr<Node> node_in;  // node with this arc as output
   llvm::Instruction *inst;        // the instruction
+  llvm::Value *cond;              // condition (if present)
 };

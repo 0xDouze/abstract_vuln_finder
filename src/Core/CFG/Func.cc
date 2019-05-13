@@ -1,6 +1,6 @@
 #include "Func.hh"
 
-Func::Func() : id(0), pos(0) {}
+Func::Func() : id(0), pos(0), bb_cnt(0) {}
 
 const std::vector<llvm::Argument *> &Func::get_args() const { return args; }
 

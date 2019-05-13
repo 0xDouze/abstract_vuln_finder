@@ -63,7 +63,8 @@ private:
            std::vector<llvm::Instruction *>::iterator &curr,
            const std::vector<llvm::Instruction *>::iterator &end);
 
-  //FIXME: Why did I put vector iterators? The question remains unanswered to this day
+  // FIXME: Why did I put vector iterators? The question remains unanswered to
+  // this day
   std::shared_ptr<Node>
   append_inst(std::shared_ptr<Node> entry,
               std::vector<llvm::Instruction *>::iterator &begin,
@@ -77,15 +78,19 @@ private:
   void set_constructor();
 
   void get_data_pass(std::shared_ptr<Func> func_desc,
-                     std::vector<llvm::BasicBlock *> blocks);
+                     std::vector<llvm::BasicBlock *> &blocks);
 
   void create_graph_pass(std::shared_ptr<struct Env> env,
                          std::shared_ptr<Func> func_desc,
                          std::vector<llvm::BasicBlock *> blocks);
 
-  void set_normal_and_backward_edges(std::shared_ptr<struct Env> env, std::shared_ptr<Func> func_desc, std::vector<llvm::BasicBlock *> blocks);
+  void set_normal_and_backward_edges(std::shared_ptr<struct Env> env,
+                                     std::shared_ptr<Func> func_desc,
+                                     std::vector<llvm::BasicBlock *> blocks);
 
-  void set_forward_edges_and_calls(std::shared_ptr<struct Env> env, std::shared_ptr<Func> func_desc, std::vector<llvm::BasicBlock *> blocks);
+  void set_forward_edges_and_calls(std::shared_ptr<struct Env> env,
+                                   std::shared_ptr<Func> func_desc,
+                                   std::vector<llvm::BasicBlock *> blocks);
 
   void translate_func_to_cfg(llvm::Function *func, std::shared_ptr<Node> entry,
                              std::shared_ptr<Node> exit);
@@ -97,9 +102,9 @@ private:
   unsigned long long _node_cnt; // node counter
   unsigned long long _arc_cnt;  // arc counter
   unsigned long long _var_cnt;  // var counter
-  unsigned _func_cnt; // func counter
-  IR_manip &_ir;      // ir_manip ref
-  CFG _cfg;           // whole cfg, is std::moved at the end of the computation
+  unsigned long long _func_cnt; // func counter
+  IR_manip &_ir;                // ir_manip ref
+  CFG _cfg; // whole cfg, is std::moved at the end of the computation
   std::vector<std::pair<std::shared_ptr<struct Env>, std::shared_ptr<Func>>>
       _func_envs; // vector of function environment
 };

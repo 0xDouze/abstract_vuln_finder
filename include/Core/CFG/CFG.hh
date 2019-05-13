@@ -36,12 +36,14 @@ public:
   // void print(const std::string& func_name);
   void print_init();
   void print_func_to_dot(const std::shared_ptr<Node> &func_entry);
+  void print_cfg_to_dot();
 
 private:
   void add_node(struct Env &env, std::shared_ptr<Node> node);
   void add_arc(struct Env &env, std::shared_ptr<Arc> arc);
   void print_arc(std::fstream &file, const std::shared_ptr<Arc> &arc);
   void print_node(std::fstream &file, const std::shared_ptr<Node> &node);
+  void print_function(std::fstream &file, const std::shared_ptr<Func> &func);
   void set_arcs_and_nodes(struct Env &env);
   // change the unordered_sets for std::unordered_set
   std::vector<std::shared_ptr<Var>>

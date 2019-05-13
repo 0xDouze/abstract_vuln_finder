@@ -1,5 +1,6 @@
 #include "CFG.hh"
 #include <fstream>
+#include <llvm/ADT/Twine.h>
 
 CFG::CFG() {}
 
@@ -100,89 +101,72 @@ void CFG::set_cfg_init_entry(std::shared_ptr<Node> init_entry) {
   _cfg_init_entry = init_entry;
 }
 
-void CFG::set_cfg_init_entry(IR_manip &ir) {
-  (void)ir;
-  //  TransformToCFG ttc(ir);
-  //  struct Env env;
-  //
-  //  _cfg_init_entry =
-  //      ttc.convert_function_to_node(ir, env, "__mcsema_constructor");
-  //  std::cout << "value of id first node " << _cfg_init_entry->id << "\n";
-  //  if (_cfg_init_entry == nullptr)
-  //    return; // Fix : Make node from default function constructor
-  //  // llvm::errs() << *(*_cfg_init_entry->arc_out.begin())->inst;
-}
+void CFG::set_cfg_init_entry(IR_manip &ir) { (void)ir; }
 void CFG::set_cfg_init_exit(std::shared_ptr<Node> init_exit) {
   _cfg_init_exit = init_exit;
 }
 
-void CFG::set_cfg_init_exit(IR_manip &ir) {
-  (void)ir;
-  // TransformToCFG ttc;
-  // struct Env env;
-  // _cfg_init_exit = ttc.convert_function_to_node(ir, env,
-  // "__mcsema_destructor");
-  // if (_cfg_init_exit == nullptr)
-  // return; // Fix: Make node from default function destructor
+void CFG::set_cfg_init_exit(IR_manip &ir) { (void)ir; }
+
+void CFG::print_function(std::fstream &file,
+                         const std::shared_ptr<Func> &func) {
+  std::shared_ptr<Node> entry_node = func->func_entry;
+  std::set<std::shared_ptr<Node>> passed;
+  std::vector<std::shared_ptr<Node>> stack;
+
+  while (((passed.size() != func->bb_cnt) || (stack.empty() == false)) ||
+         entry_node != func->func_exit) {
+    if (entry_node->label != "") {
+      file << entry_node->id << " [xlabel=\"" << entry_node->label << "\"]\n";
+      passed.insert(entry_node);
+    }
+    for (auto &A : entry_node->arc_out) {
+      stack.push_back(A->node_out);
+      std::string inst;
+      llvm::raw_string_ostream rso(inst);
+      A->inst->print(rso);
+      file << entry_node->id << " -> " << A->node_out->id << " [label=\""
+           << inst << "\"];\n";
+    }
+
+    entry_node = stack.back();
+    stack.pop_back();
+    while (passed.find(entry_node) != passed.end()) {
+      entry_node = stack.back();
+      stack.pop_back();
+    }
+  }
 }
 
-void CFG::print_arc(std::fstream &file, const std::shared_ptr<Arc> &arc) {
-  if (arc == nullptr)
-    return;
-  std::string inst;
-  llvm::raw_string_ostream rso(inst);
-  arc->inst->print(rso);
-  file << arc->node_in->id << " -> " << arc->node_out->id << " [label=\""
-       << inst << "\"];\n";
-  print_node(file, arc->node_out);
-}
-
-void CFG::print_node(std::fstream &file, const std::shared_ptr<Node> &node) {
-  if (node == nullptr)
-    return;
-  for (auto &I : node->arc_out)
-    print_arc(file, I);
-}
-
-void CFG::print_init() {
+void CFG::print_cfg_to_dot() {
   std::fstream file;
-
-  if ((_cfg_init_entry == nullptr) || _cfg_init_entry->arc_out.empty())
-    return;
-
-  llvm::Function *func =
-      (*_cfg_init_entry->arc_out.begin())->inst->getFunction();
-  std::string filename = func->getName().str();
-  filename.append(".dot");
-  file.open(filename,
-            std::fstream::in | std::fstream::out | std::fstream::trunc);
-  if (file.is_open() == false) {
-    std::cerr << "Failed to open file for printing\n";
+  if (_cfg_funcs.empty()) {
+    std::cout << "hmmm c'est vide putain\n";
     return;
   }
-
-  file << "digraph ";
-  file << func->getName().str() << " {\n";
-  print_node(file, _cfg_init_entry);
-  file << "}";
+  for (auto &F : _cfg_funcs) {
+    std::cout << &F << "addresse de Func \n";
+    if (F == nullptr)
+      std::cout << "wtf cest null\n";
+    if (F->func_entry == nullptr || F->func_entry->arc_out.empty())
+      continue;
+    file.open(llvm::Twine(F->name).concat(llvm::Twine(".dot")).str(),
+              std::fstream::in | std::fstream::out | std::fstream::trunc);
+    if (file.is_open() == false) {
+      std::cerr << "Failed to open file " << F->name << ".dot"
+                << "for printing\n";
+      return;
+    }
+    file << "digraph ";
+    file << F->name << " {\nforcelabels=true;\n";
+    print_function(file, F);
+    file << "}";
+    file.close();
+    std::cout << "coucou je devrais bien creer le fichier c'est louche\n";
+  }
 }
 
 void CFG::print_func_to_dot(const std::shared_ptr<Node> &func_entry) {
   std::fstream file;
-  if ((func_entry == nullptr || func_entry->arc_out.empty()))
-    return;
-
-  llvm::Function *func = (*func_entry->arc_out.begin())->inst->getFunction();
-  std::string filename = func->getName().str();
-  filename.append(".dot");
-  file.open(filename,
-            std::fstream::in | std::fstream::out | std::fstream::trunc);
-  if (file.is_open() == false) {
-    std::cerr << "Failed to open file " << filename << " for printing\n";
-    return;
-  }
-  file << "digraph ";
-  file << func->getName().str() << " {\n";
-  print_node(file, func_entry);
-  file << "}";
+  (void)func_entry;
 }

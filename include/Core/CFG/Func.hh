@@ -18,6 +18,7 @@ struct Func {
   std::vector<std::shared_ptr<Var>> ret_val;
   //  std::map<std::shared_ptr<Node>, llvm::Value *> ret_val; // Return value
   std::vector<std::shared_ptr<Arc>> func_calls; // list of calls to the function
+  unsigned bb_cnt;                              // basic block counter
 
   const std::vector<llvm::Argument *> &get_args() const;
   const std::vector<std::shared_ptr<Arc>> &get_func_calls() const;
