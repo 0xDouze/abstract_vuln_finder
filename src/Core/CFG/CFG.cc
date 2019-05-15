@@ -114,12 +114,13 @@ void CFG::print_function(std::fstream &file,
   std::set<std::shared_ptr<Node>> passed;
   std::vector<std::shared_ptr<Node>> stack;
 
-  while (((passed.size() != func->bb_cnt) || (stack.empty() == false)) ||
-         entry_node != func->func_exit) {
+  while ((entry_node->arc_out.empty() == false) || ((passed.size() < func->bb_cnt) || (stack.empty() == false))){// ||
+     //    entry_node != func->func_exit) {
     if (entry_node->label != "") {
       file << entry_node->id << " [xlabel=\"" << entry_node->label << "\"]\n";
       passed.insert(entry_node);
     }
+    std::cout << "coucou je boucle inf dans print function " << entry_node->id << func->name << " " <<passed.size() << " " << func->bb_cnt << " " << stack.empty() <<"\n";
     for (auto &A : entry_node->arc_out) {
       stack.push_back(A->node_out);
       std::string inst;
@@ -129,12 +130,20 @@ void CFG::print_function(std::fstream &file,
            << inst << "\"];\n";
     }
 
-    entry_node = stack.back();
-    stack.pop_back();
-    while (passed.find(entry_node) != passed.end()) {
+    if (stack.size() > 0) {
       entry_node = stack.back();
       stack.pop_back();
     }
+    while ((stack.size() > 0) && (passed.find(entry_node) != passed.end())) {
+      entry_node = stack.back();
+      stack.pop_back();
+    }
+
+  //    do {
+  //      entry_node = stack.back();
+  //      stack.pop_back();
+  //    } while ((stack.size() > 0) && (passed.find(entry_node) != passed.end()));
+
   }
 }
 
@@ -157,7 +166,7 @@ void CFG::print_cfg_to_dot() {
                 << "for printing\n";
       return;
     }
-    file << "digraph ";
+    file << "strict digraph ";
     file << F->name << " {\nforcelabels=true;\n";
     print_function(file, F);
     file << "}";
