@@ -6,31 +6,11 @@ CFG::CFG() {}
 
 CFG::CFG(IR_manip &ir) {
   (void)ir;
-  //  struct Env env;
-  // TransformToCFG ttc;
-  // std::pair<std::shared_ptr<Node>, std::shared_ptr<Node>> inits =
-  //    ttc.set_cfg_entry(env, ir);
 }
 
 CFG::CFG(IR_manip &ir, const std::string &func_name) {
   (void)ir;
   (void)func_name;
-  //  TransformToCFG ttc();
-  // struct Env env;
-
-  // set_cfg_init_entry(ir);
-  // set_cfg_init_exit(ir);
-
-  // if (ttc.convert_function_to_node(ir, env, func_name) == nullptr)
-  // return;
-  // print_func_to_dot(_cfg_init_entry);
-  // if (env.env_vars.empty() == false)
-  //  _cfg_vars.insert(env.env_vars.begin(), env.env_vars.end());
-
-  // if (env.env_func.empty() == false) {
-  //  _cfg_funcs.insert(env.env_func.begin(), env.env_func.end());
-  //  set_arcs_and_nodes(env);
-  //}
 }
 // Fix: Change the CFG type to an unordered set
 void CFG::add_arc(struct Env &env, std::shared_ptr<Arc> arc) {
@@ -57,7 +37,7 @@ const std::vector<std::shared_ptr<Var>> &CFG::get_cfg_vars() const {
   return _cfg_vars;
 }
 
-const std::vector<std::shared_ptr<Func>> &CFG::get_cfg_funcs() const {
+const std::set<std::shared_ptr<Func>> &CFG::get_cfg_funcs() const {
   return _cfg_funcs;
 }
 
@@ -84,7 +64,7 @@ void CFG::add_cfg_var(std::shared_ptr<Var> var) {
 
 void CFG::add_cfg_func(std::shared_ptr<Func> func) {
   if (func != nullptr)
-    _cfg_funcs.push_back(func);
+    _cfg_funcs.insert(func);
 }
 
 void CFG::add_cfg_node(std::shared_ptr<Node> node) {
@@ -114,49 +94,37 @@ void CFG::print_function(std::fstream &file,
   std::set<std::shared_ptr<Node>> passed;
   std::vector<std::shared_ptr<Node>> stack;
 
-  while ((entry_node->arc_out.empty() == false) || ((passed.size() < func->bb_cnt) || (stack.empty() == false))){// ||
-     //    entry_node != func->func_exit) {
+  while ((entry_node->arc_out.empty() == false) ||
+         ((passed.size() < func->bb_cnt) || (stack.empty() == false))) { // ||
     if (entry_node->label != "") {
       file << entry_node->id << " [xlabel=\"" << entry_node->label << "\"]\n";
       passed.insert(entry_node);
     }
-    std::cout << "coucou je boucle inf dans print function " << entry_node->id << func->name << " " <<passed.size() << " " << func->bb_cnt << " " << stack.empty() <<"\n";
+
     for (auto &A : entry_node->arc_out) {
       stack.push_back(A->node_out);
       std::string inst;
       llvm::raw_string_ostream rso(inst);
       A->inst->print(rso);
-      file << entry_node->id << " -> " << A->node_out->id << " [label=\""
-           << inst << "\"];\n";
     }
 
-    if (stack.size() > 0) {
+    if (stack.size() == 0)
+      return;
+
+    do {
       entry_node = stack.back();
       stack.pop_back();
-    }
-    while ((stack.size() > 0) && (passed.find(entry_node) != passed.end())) {
-      entry_node = stack.back();
-      stack.pop_back();
-    }
+    } while ((passed.count(entry_node)) && stack.size() > 0);
 
-  //    do {
-  //      entry_node = stack.back();
-  //      stack.pop_back();
-  //    } while ((stack.size() > 0) && (passed.find(entry_node) != passed.end()));
-
+    if (passed.count(entry_node) && stack.size() == 0)
+      return;
   }
 }
 
 void CFG::print_cfg_to_dot() {
   std::fstream file;
-  if (_cfg_funcs.empty()) {
-    std::cout << "hmmm c'est vide putain\n";
-    return;
-  }
+
   for (auto &F : _cfg_funcs) {
-    std::cout << &F << "addresse de Func \n";
-    if (F == nullptr)
-      std::cout << "wtf cest null\n";
     if (F->func_entry == nullptr || F->func_entry->arc_out.empty())
       continue;
     file.open(llvm::Twine(F->name).concat(llvm::Twine(".dot")).str(),
@@ -171,10 +139,10 @@ void CFG::print_cfg_to_dot() {
     print_function(file, F);
     file << "}";
     file.close();
-    std::cout << "coucou je devrais bien creer le fichier c'est louche\n";
   }
 }
 
+//TODO
 void CFG::print_func_to_dot(const std::shared_ptr<Node> &func_entry) {
   std::fstream file;
   (void)func_entry;

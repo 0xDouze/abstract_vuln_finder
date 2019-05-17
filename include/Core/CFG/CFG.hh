@@ -20,7 +20,7 @@ public:
       const std::string &func_name); // creates cfg with only the init and the
                                      // specified function
   const std::vector<std::shared_ptr<Var>> &get_cfg_vars() const;
-  const std::vector<std::shared_ptr<Func>> &get_cfg_funcs() const;
+  const std::set<std::shared_ptr<Func>> &get_cfg_funcs() const;
   const std::vector<std::shared_ptr<Node>> &get_cfg_nodes() const;
   const std::vector<std::shared_ptr<Arc>> &get_cfg_arcs() const;
   const std::shared_ptr<Node> &get_cfg_init_entry() const;
@@ -48,7 +48,7 @@ private:
   // change the unordered_sets for std::unordered_set
   std::vector<std::shared_ptr<Var>>
       _cfg_vars; // List of all the variables in the CFG
-  std::vector<std::shared_ptr<Func>>
+  std::set<std::shared_ptr<Func>>
       _cfg_funcs; // List of all the functions in the CFG
   std::vector<std::shared_ptr<Node>>
       _cfg_nodes; // List of all the nodes in the CFG

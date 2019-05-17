@@ -36,5 +36,6 @@ int main(int ac, char **av) {
   //           << (*init->arc_out.begin())->node_out->id << "\n";
   //}
   // cfg.print_func_to_dot((*cfg.get_cfg_nodes().begin()));
+  cfg.print_cfg_to_dot();
   return 0;
 }

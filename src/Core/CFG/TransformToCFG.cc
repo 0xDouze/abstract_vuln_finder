@@ -48,7 +48,7 @@ void TransformToCFG::set_constructor() {
         (F.second->func_entry->arc_in.empty() &&
          F.second->func_entry->arc_out.empty()))
       std::cout << "func empty\n";
-    _cfg.print_cfg_to_dot();
+    //    _cfg.print_cfg_to_dot();
   }
 }
 
@@ -145,7 +145,7 @@ void TransformToCFG::get_data_pass(std::shared_ptr<Func> func_desc,
     else {
       std::cout << "nom del a fonction " << F->getName().str() << "\n";
       std::shared_ptr<Node> entry = create_node(0);
-//          (*env->env_labels.find(F->begin()->getName())).second;
+      //          (*env->env_labels.find(F->begin()->getName())).second;
       std::shared_ptr<Node> exit = create_node(0);
       translate_func_to_cfg(F, entry, exit);
     }
@@ -181,26 +181,41 @@ void TransformToCFG::set_normal_and_backward_edges(
     std::shared_ptr<Node> entry_node =
         env->env_labels.find(BB->getName())->second;
     std::shared_ptr<Node> output_node = nullptr;
-    for (auto &I : *BB) {
-      if (I.isTerminator()) {
-        if (llvm::isa<llvm::ReturnInst>(&I))
-          create_arc(entry_node, func_desc->func_exit, &I);
+    for (auto I = BB->begin(), E = BB->end(); I != E; ++I) {
+      if (I->isTerminator()) {
+        if (llvm::isa<llvm::ReturnInst>(&*I))
+          create_arc(entry_node, func_desc->func_exit, &*I);
         else if (llvm::BranchInst *branch =
-                     llvm::dyn_cast<llvm::BranchInst>(&I)) {
+                     llvm::dyn_cast<llvm::BranchInst>(&*I)) {
           for (const auto &op : branch->successors()) {
             output_node = env->env_labels.find(op->getName())->second;
             llvm::errs() << "branch: " << entry_node->id << " " << op->getName()
                          << " " << output_node->id << "\n";
             std::cout << "branch successors : " << entry_node->id << " "
                       << output_node->id << "\n";
-            std::shared_ptr<Arc> arc = create_arc(entry_node, output_node, &I);
+            std::shared_ptr<Arc> arc = create_arc(entry_node, output_node, &*I);
             if (branch->isConditional())
               arc->cond = branch->getCondition();
           }
+        } else if (llvm::SwitchInst *switchi =
+                       llvm::dyn_cast<llvm::SwitchInst>(&*I)) {
+          for (const auto &op : switchi->cases()) {
+            output_node =
+                env->env_labels.find(op.getCaseSuccessor()->getName())->second;
+            llvm::errs() << "switch: " << entry_node->id << " "
+                         << op.getCaseSuccessor()->getName() << " "
+                         << output_node->id << "\n";
+            std::cout << "switch successors : " << entry_node->id << " "
+                      << output_node->id << "\n";
+            std::shared_ptr<Arc> arc = create_arc(entry_node, output_node, &*I);
+            arc->cond = switchi->getCondition();
+          }
         }
+      } else if (llvm::isa<llvm::CallInst>(&*I) && std::next(I, 1) == E) {
+        create_arc(entry_node, func_desc->func_exit, &*I);
       } else {
         output_node = create_node(0);
-        create_arc(entry_node, output_node, &I);
+        create_arc(entry_node, output_node, &*I);
         entry_node = output_node;
       }
     }
