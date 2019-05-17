@@ -23,7 +23,13 @@
 
 class TransformToCFG {
 public:
+  /// Constructor. Takes an IR_manip reference. Not much to say here.
   TransformToCFG(IR_manip &ir);
+
+  /// This function does everything. Takes as a parameter the name of
+  /// the entry point of the binary. Will then convert to cfg all the functions
+  /// called by the function (and the entry function itself of course).
+  /// Will return an std::move of the CFG declared as a member of the class.
   CFG transform_ir_to_cfg(const std::string &start_function = "main");
 
 private:

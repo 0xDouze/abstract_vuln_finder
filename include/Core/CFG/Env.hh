@@ -10,20 +10,40 @@
 #include <unordered_map>
 #include <vector>
 
-// may need to change the Nodes, we'll see
+/// This structure contains every possible data wanted during the
+/// translation from IR to CFG
+///
+/// Note: This structure is based on something that is useful
+/// when parsing C files. As we are doing this on IR, not
+/// every containers are set during the translation
 struct Env {
-  std::vector<std::shared_ptr<Var>>
-      env_vars; // map of all variables in the function
-  std::vector<std::shared_ptr<Func>>
-      env_func;                   // map of all visible functions in scope
-  std::shared_ptr<Node> env_exit; // node to go to after terminator (not sure if
-                                  // i should keep a copy or a ref)
+
+  /// map of all variables in the function
+  std::vector<std::shared_ptr<Var>> env_vars;
+
+  /// Map of all visible functions in the "scope" (function)
+  std::vector<std::shared_ptr<Func>> env_func;
+
+  /// Node to go to after terminator instruction
+  std::shared_ptr<Node> env_exit;
+
+  /// List of all the calls in the current function in
+  /// the form of llvm::Function pointers
   std::vector<llvm::Function *> call_list;
-  std::vector<std::shared_ptr<Var>>
-      env_return; // variable that contains the returned value if
-                  // the terminator is a return
+
+  /// Variables that contain the returned value if the
+  /// terminator is a ReturnInst. Not used.
+  std::vector<std::shared_ptr<Var>> env_return;
+
+  /// Map of all the basic blocks. Given a name, it will
+  /// return a basic block pointer
   std::map<std::string, llvm::BasicBlock *> block_labels;
-  std::map<std::string, std::shared_ptr<Node>> env_labels; // map of all labels
+
+  /// Map of all the basic blocks. Given a name, it will
+  /// return a pointer to a Node structure
+  std::map<std::string, std::shared_ptr<Node>> env_labels;
+
+  /// Map of all the gotos. Not used.
   std::map<std::string, std::shared_ptr<Node>>
       env_gotos; // list of gotos contains Node and the name of the label
 };

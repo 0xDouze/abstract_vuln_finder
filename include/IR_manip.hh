@@ -13,17 +13,30 @@
 #include <set>
 #include <string>
 
-/*! This class is used to manipulate the ir for further use */
+/// \brief This class is for manipulating the IR/BC file and input it to the CFG
+/// creation pass.
+
 class IR_manip {
 public:
   IR_manip(char *ir_file, llvm::LLVMContext &ctx, llvm::SMDiagnostic &diag);
   ~IR_manip();
   int check_module() const;
   const std::set<std::string> get_function_list() const;
+  /// Returns a pointer to an llvm::Function which is the class that gives
+  /// you all the data about the wanted function which can be found in the
+  /// LLVM file.
   llvm::Function *get_function_handle(const std::string &func_name);
+
+  /// Just a printer of the function given in parameter to stdout.
   void print_function(llvm::Function *func) const;
+
+  /// Inserts all basic blocks found in the function and inserts
+  /// it into the vector given in parameter.
   static void add_BB_to_worklist(llvm::Function *func,
                                  std::vector<llvm::BasicBlock *> &worklist);
+
+  /// Inserts all instructions found in the function without distinction
+  /// of the basic blocks.
   static void add_inst_to_worklist(llvm::Function *func,
                                    std::vector<llvm::Instruction *> &worklist);
 

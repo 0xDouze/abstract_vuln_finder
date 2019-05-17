@@ -7,19 +7,38 @@
 #include <memory>
 #include <string>
 
+/// This structure represents a function during the CFG construction
 struct Func {
   Func();
-  int id;                             // Unique identifier to function
-  std::string name;                   // Name of the function
-  int pos;                            // Position in the source
-  std::shared_ptr<Node> func_entry;   // Entry node
-  std::shared_ptr<Node> func_exit;    // Exit node
-  std::vector<llvm::Argument *> args; // Arguments
-  std::vector<std::shared_ptr<Var>> ret_val;
-  //  std::map<std::shared_ptr<Node>, llvm::Value *> ret_val; // Return value
-  std::vector<std::shared_ptr<Arc>> func_calls; // list of calls to the function
-  unsigned bb_cnt;                              // basic block counter
 
+  /// Unique identifier to the function
+  int id;
+
+  /// Name of the function
+  std::string name;
+
+  /// Position in the source (To be done, missing feature in mcsema)
+  int pos;
+
+  /// Entry node of the function
+  std::shared_ptr<Node> func_entry;
+
+  /// Last node of the function
+  std::shared_ptr<Node> func_exit;
+
+  /// List of arguments for the function call
+  std::vector<llvm::Argument *> args;
+
+  /// Returned values
+  std::vector<std::shared_ptr<Var>> ret_val;
+
+  /// List of all the functions called in this function
+  std::vector<std::shared_ptr<Arc>> func_calls;
+
+  /// Basic Block counter. Used for printing check
+  unsigned bb_cnt;
+
+  // Usuals
   const std::vector<llvm::Argument *> &get_args() const;
   const std::vector<std::shared_ptr<Arc>> &get_func_calls() const;
   void add_arg(llvm::Argument *arg);
