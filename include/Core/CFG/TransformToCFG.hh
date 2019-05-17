@@ -24,7 +24,7 @@
 class TransformToCFG {
 public:
   TransformToCFG(IR_manip &ir);
-  CFG transform_ir_to_cfg();
+  CFG transform_ir_to_cfg(const std::string &start_function = "main");
 
 private:
   std::shared_ptr<Node> create_node(int pos);
@@ -69,13 +69,9 @@ private:
                          std::shared_ptr<Func> func_desc,
                          std::vector<llvm::BasicBlock *> blocks);
 
-  void set_normal_and_backward_edges(std::shared_ptr<struct Env> env,
-                                     std::shared_ptr<Func> func_desc,
-                                     std::vector<llvm::BasicBlock *> blocks);
-
-  void set_forward_edges_and_calls(std::shared_ptr<struct Env> env,
-                                   std::shared_ptr<Func> func_desc,
-                                   std::vector<llvm::BasicBlock *> blocks);
+  void set_edges(std::shared_ptr<struct Env> env,
+                 std::shared_ptr<Func> func_desc,
+                 std::vector<llvm::BasicBlock *> blocks);
 
   void translate_func_to_cfg(llvm::Function *func, std::shared_ptr<Node> entry,
                              std::shared_ptr<Node> exit);

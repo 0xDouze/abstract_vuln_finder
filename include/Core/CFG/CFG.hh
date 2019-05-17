@@ -3,7 +3,6 @@
 #include "Func.hh"
 #include "Graph.hh"
 #include "IR_manip.hh"
-//#include "TransformToCFG.hh"
 #include "Var.hh"
 #include <fstream>
 #include <list>
@@ -12,13 +11,14 @@
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
+
 class CFG {
 public:
-  CFG();             // set empty cfg
-  CFG(IR_manip &ir); // create cfg with all the functions
+  CFG();                      // set empty cfg
+  CFG(IR_manip &ir) = delete; // create cfg with all the functions
   CFG(IR_manip &ir,
-      const std::string &func_name); // creates cfg with only the init and the
-                                     // specified function
+      const std::string &func_name) = delete; // creates cfg with only the init
+                                              // and the specified function
   const std::vector<std::shared_ptr<Var>> &get_cfg_vars() const;
   const std::set<std::shared_ptr<Func>> &get_cfg_funcs() const;
   const std::vector<std::shared_ptr<Node>> &get_cfg_nodes() const;

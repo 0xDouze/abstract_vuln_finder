@@ -22,10 +22,10 @@ void TransformToCFG::translate_func_to_cfg(llvm::Function *func,
     _func_envs.push_back(std::make_pair(env, func_desc));
     return;
   }
+
   func_desc = create_func(func->getName(), entry, exit, 0, args, retval);
   _func_envs.push_back(std::make_pair(env, func_desc));
   get_data_pass(func_desc, blocks);
-
   create_graph_pass(env, func_desc, blocks);
 }
 
@@ -36,20 +36,11 @@ void TransformToCFG::set_constructor() {
   _cfg.set_cfg_init_exit(init_exit);
 
   // will need to be modified in due time, but for now it's ok
-  llvm::Function *func = _ir.get_function_handle("main");
+  llvm::Function *func = _ir.get_function_handle("__mcsema_constructor");
   if (func == nullptr)
     return;
 
   translate_func_to_cfg(func, init_entry, init_exit);
-  for (auto &F : _func_envs) {
-    // auto &env = F.first;
-    std::cout << "\n\nprint func name " << F.second->name << "\n";
-    if (F.second == nullptr || F.second->func_entry == nullptr ||
-        (F.second->func_entry->arc_in.empty() &&
-         F.second->func_entry->arc_out.empty()))
-      std::cout << "func empty\n";
-    //    _cfg.print_cfg_to_dot();
-  }
 }
 
 static bool compare_function(llvm::Function *func1, llvm::Function *func2) {
@@ -75,6 +66,7 @@ void TransformToCFG::set_func_env_var(std::shared_ptr<struct Env> env,
   else {
     std::shared_ptr<Var> var;
     if (auto *R = llvm::dyn_cast<llvm::ReturnInst>(&inst)) {
+
       if (R->getReturnValue() == nullptr)
         return;
       else {
@@ -85,6 +77,7 @@ void TransformToCFG::set_func_env_var(std::shared_ptr<struct Env> env,
       var = create_var(val, nullptr, val->getType());
     else
       return;
+
     env->env_vars.push_back(var);
   }
 }
@@ -103,6 +96,7 @@ void TransformToCFG::get_data_pass(std::shared_ptr<Func> func_desc,
 
   if (blocks.empty())
     return;
+
   for (auto BB = blocks.begin(), E = blocks.end(); BB != E; ++BB) {
     if ((*BB)->hasName()) {
       std::shared_ptr<Node> entry_bb = nullptr;
@@ -117,6 +111,7 @@ void TransformToCFG::get_data_pass(std::shared_ptr<Func> func_desc,
       llvm::errs() << "BasicBlock name missing. Did you opt -instnamer?\n";
       return;
     }
+
     for (llvm::Instruction &I : **BB) {
       set_func_env_var(env, func_desc, I);
       if (llvm::isa<llvm::CallInst>(I)) {
@@ -128,7 +123,6 @@ void TransformToCFG::get_data_pass(std::shared_ptr<Func> func_desc,
       }
     }
   }
-
   std::sort(env->call_list.begin(), env->call_list.end(), compare_function);
   auto last = std::unique(env->call_list.begin(), env->call_list.end());
   env->call_list.erase(last, env->call_list.end());
@@ -140,31 +134,20 @@ void TransformToCFG::get_data_pass(std::shared_ptr<Func> func_desc,
 
     if (exists)
       continue;
+
     if (F->begin() == F->end())
       translate_func_to_cfg(F, nullptr, nullptr);
     else {
-      std::cout << "nom del a fonction " << F->getName().str() << "\n";
       std::shared_ptr<Node> entry = create_node(0);
-      //          (*env->env_labels.find(F->begin()->getName())).second;
       std::shared_ptr<Node> exit = create_node(0);
       translate_func_to_cfg(F, entry, exit);
     }
   }
 }
 
-void TransformToCFG::set_forward_edges_and_calls(
-    std::shared_ptr<struct Env> env, std::shared_ptr<Func> func_desc,
-    std::vector<llvm::BasicBlock *> blocks) {
-  if (env == nullptr || func_desc == nullptr || blocks.empty()) {
-    llvm::errs() << "nullptr found in " << __FILE__ << "at line " << __LINE__
-                 << " cannot continue \n";
-    return;
-  }
-}
-
-void TransformToCFG::set_normal_and_backward_edges(
-    std::shared_ptr<struct Env> env, std::shared_ptr<Func> func_desc,
-    std::vector<llvm::BasicBlock *> blocks) {
+inline void TransformToCFG::set_edges(std::shared_ptr<struct Env> env,
+                                      std::shared_ptr<Func> func_desc,
+                                      std::vector<llvm::BasicBlock *> blocks) {
   if (env == nullptr || func_desc == nullptr || blocks.empty()) {
     llvm::errs() << "nullptr found in " << __FILE__ << "at line " << __LINE__
                  << " cannot continue \n";
@@ -181,36 +164,32 @@ void TransformToCFG::set_normal_and_backward_edges(
     std::shared_ptr<Node> entry_node =
         env->env_labels.find(BB->getName())->second;
     std::shared_ptr<Node> output_node = nullptr;
+
     for (auto I = BB->begin(), E = BB->end(); I != E; ++I) {
       if (I->isTerminator()) {
+
         if (llvm::isa<llvm::ReturnInst>(&*I))
           create_arc(entry_node, func_desc->func_exit, &*I);
+
         else if (llvm::BranchInst *branch =
                      llvm::dyn_cast<llvm::BranchInst>(&*I)) {
           for (const auto &op : branch->successors()) {
             output_node = env->env_labels.find(op->getName())->second;
-            llvm::errs() << "branch: " << entry_node->id << " " << op->getName()
-                         << " " << output_node->id << "\n";
-            std::cout << "branch successors : " << entry_node->id << " "
-                      << output_node->id << "\n";
             std::shared_ptr<Arc> arc = create_arc(entry_node, output_node, &*I);
             if (branch->isConditional())
               arc->cond = branch->getCondition();
           }
+
         } else if (llvm::SwitchInst *switchi =
                        llvm::dyn_cast<llvm::SwitchInst>(&*I)) {
           for (const auto &op : switchi->cases()) {
             output_node =
                 env->env_labels.find(op.getCaseSuccessor()->getName())->second;
-            llvm::errs() << "switch: " << entry_node->id << " "
-                         << op.getCaseSuccessor()->getName() << " "
-                         << output_node->id << "\n";
-            std::cout << "switch successors : " << entry_node->id << " "
-                      << output_node->id << "\n";
             std::shared_ptr<Arc> arc = create_arc(entry_node, output_node, &*I);
             arc->cond = switchi->getCondition();
           }
         }
+
       } else if (llvm::isa<llvm::CallInst>(&*I) && std::next(I, 1) == E) {
         create_arc(entry_node, func_desc->func_exit, &*I);
       } else {
@@ -231,7 +210,7 @@ void TransformToCFG::create_graph_pass(std::shared_ptr<struct Env> env,
     return;
   }
 
-  set_normal_and_backward_edges(env, func_desc, blocks);
+  set_edges(env, func_desc, blocks);
 }
 
 std::shared_ptr<Node> TransformToCFG::create_node(int pos) {
@@ -333,14 +312,17 @@ std::vector<llvm::Instruction *>::iterator &TransformToCFG::add_inst(
     const std::vector<llvm::Instruction *>::iterator &end) {
   if (curr == end)
     return curr;
+
   else if ((std::next(curr, 1) == end)) {
     create_arc(entry, exit, *curr);
+
   } else {
     std::shared_ptr<Node> next = create_node(0);
     create_arc(entry, next, *curr);
     std::advance(curr, 1);
     add_inst(next, exit, begin, curr, end);
   }
+
   return curr;
 }
 
@@ -348,9 +330,9 @@ std::shared_ptr<Node> TransformToCFG::append_inst(
     std::shared_ptr<Node> entry,
     std::vector<llvm::Instruction *>::iterator &begin,
     const std::vector<llvm::Instruction *>::iterator &end) {
-
   if (begin == end)
     return entry;
+
   else {
     std::shared_ptr<Node> next = create_node(0);
     create_arc(entry, next, *begin);
@@ -363,9 +345,9 @@ std::shared_ptr<Node> TransformToCFG::prepend_inst(
     std::shared_ptr<Node> exit,
     std::vector<llvm::Instruction *>::iterator &begin,
     const std::vector<llvm::Instruction *>::iterator &end) {
-
   if (begin == end)
     return exit;
+
   else {
     std::shared_ptr<Node> prev = create_node(0);
     create_arc(prev, exit, *begin);
@@ -374,9 +356,14 @@ std::shared_ptr<Node> TransformToCFG::prepend_inst(
   }
 }
 
-CFG TransformToCFG::transform_ir_to_cfg() {
-  std::shared_ptr<Node> init_entry = create_node(0);
-  std::shared_ptr<Node> init_exit = create_node(0);
+CFG TransformToCFG::transform_ir_to_cfg(const std::string &start_function) {
+  std::shared_ptr<Node> entry = create_node(0);
+  std::shared_ptr<Node> exit = create_node(0);
 
+  llvm::Function *func = _ir.get_function_handle(start_function);
+  if (func == nullptr)
+    llvm::errs() << start_function
+                 << ": Function not found for transform_ir_to_cfg\n";
+  translate_func_to_cfg(func, entry, exit);
   return std::move(_cfg);
 }

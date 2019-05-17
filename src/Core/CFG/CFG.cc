@@ -4,15 +4,6 @@
 
 CFG::CFG() {}
 
-CFG::CFG(IR_manip &ir) {
-  (void)ir;
-}
-
-CFG::CFG(IR_manip &ir, const std::string &func_name) {
-  (void)ir;
-  (void)func_name;
-}
-// Fix: Change the CFG type to an unordered set
 void CFG::add_arc(struct Env &env, std::shared_ptr<Arc> arc) {
   if (arc == nullptr)
     return;
@@ -142,7 +133,7 @@ void CFG::print_cfg_to_dot() {
   }
 }
 
-//TODO
+// TODO
 void CFG::print_func_to_dot(const std::shared_ptr<Node> &func_entry) {
   std::fstream file;
   (void)func_entry;
