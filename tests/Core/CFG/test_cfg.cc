@@ -23,14 +23,45 @@ TEST(CFG, DefaultConstructor) {
   EXPECT_EQ(nullptr, cfg.get_cfg_init_exit());
 }
 
-TEST(CFG, ConstructorWithIR) {
-  llvm::SMDiagnostic diag;
-  llvm::LLVMContext ctx;
-  char file[] = "../../tests/ll/buf_no_vuln.ll";
+TEST(CFG, AddNode) {
+  CFG cfg;
 
-  IR_manip ir(file, ctx, diag);
-  std::set<std::string> func_list = ir.get_function_list();
-  CFG cfg(ir);
+  EXPECT_EQ(true, cfg.get_cfg_nodes().empty());
+  std::shared_ptr<Node> node = std::make_shared<Node>();
+  node->id = 23;
+  node->label = "Hello";
+  cfg.add_cfg_node(node);
+  EXPECT_EQ(false, cfg.get_cfg_nodes().empty());
+}
 
-  EXPECT_EQ(1, (*(*(cfg.get_cfg_init_entry()->arc_out.begin()))).node_out->id);
+TEST(CFG, AddArc) {
+  CFG cfg;
+
+  EXPECT_EQ(true, cfg.get_cfg_arcs().empty());
+  std::shared_ptr<Arc> arc = std::make_shared<Arc>();
+  arc->id = 53;
+  cfg.add_cfg_arc(arc);
+  EXPECT_EQ(false, cfg.get_cfg_arcs().empty());
+}
+
+TEST(CFG, AddVar) {
+  CFG cfg;
+
+  EXPECT_EQ(true, cfg.get_cfg_vars().empty());
+  std::shared_ptr<Var> var = std::make_shared<Var>();
+  var->id = 42;
+  cfg.add_cfg_var(var);
+  EXPECT_EQ(false, cfg.get_cfg_vars().empty());
+}
+
+TEST(CFG, AddFunc) {
+  CFG cfg;
+
+  EXPECT_EQ(true, cfg.get_cfg_funcs().empty());
+  std::shared_ptr<Func> func = std::make_shared<Func>();
+  func->name = "hello world";
+  cfg.add_cfg_func(func);
+  EXPECT_EQ(false, cfg.get_cfg_funcs().empty());
+  std::string name = (*cfg.get_cfg_funcs().begin())->name;
+  EXPECT_STREQ("hello world", name.c_str());
 }

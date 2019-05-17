@@ -44,3 +44,5 @@ add_test(NAME Graph COMMAND test_graph)
 add_executable(test_cfg Core/CFG/test_cfg.cc)
 target_link_libraries(test_cfg ${llvm_libs} abstract_vuln_finder)
 add_test(NAME CFG COMMAND test_cfg)
+
+add_test(crashTest ${CMAKE_CURRENT_SOURCE_DIR}/Core/CFG/test_transform_to_cfg.sh)
