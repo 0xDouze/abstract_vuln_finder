@@ -97,6 +97,8 @@ void CFG::print_function(std::fstream &file,
       std::string inst;
       llvm::raw_string_ostream rso(inst);
       A->inst->print(rso);
+      file << entry_node->id << " -> " << A->node_out->id << " [label=\""
+           << inst << "\"];\n";
     }
 
     if (stack.size() == 0)
