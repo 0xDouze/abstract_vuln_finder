@@ -54,7 +54,6 @@ add_executable(abstract_vuln src/main.cc
   src/Core/CFG/Func.cc
   src/Core/CFG/CFG.cc
   src/Core/CFG/TransformToCFG.cc
-  src/Core/Iterator/Iterator.cc
   src/Core/Domains/ConcreteDomain.cc)
 add_library(abstract_vuln_finder SHARED
 	src/IR_manip.cc
@@ -62,7 +61,6 @@ add_library(abstract_vuln_finder SHARED
         src/Core/CFG/Func.cc
         src/Core/CFG/CFG.cc
         src/Core/CFG/TransformToCFG.cc
-        src/Core/Iterator/Iterator.cc
         src/Core/Domains/ConcreteDomain.cc)
 llvm_map_components_to_libnames(llvm_libs)
 

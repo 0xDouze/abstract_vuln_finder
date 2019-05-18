@@ -1,5 +1,7 @@
 #include "CFG.hh"
+#include "ConcreteDomain.hh"
 #include "IR_manip.hh"
+#include "Iterator.hh"
 #include "TransformToCFG.hh"
 #include <ios>
 #include <iostream>
@@ -25,5 +27,10 @@ int main(int ac, char **av) {
   TransformToCFG tcc(IR);
   cfg = tcc.transform_ir_to_cfg();
   cfg.print_cfg_to_dot();
+
+  ConcreteDomain domain;
+
+  Iterator<ConcreteDomain, ConcreteDomain::Env> iterator(cfg);
+  domain = iterator(domain);
   return 0;
 }

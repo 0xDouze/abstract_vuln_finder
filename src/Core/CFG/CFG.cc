@@ -24,19 +24,19 @@ void CFG::set_arcs_and_nodes(struct Env &env) {
     for (auto &I : env.env_func)
       add_node(env, I->func_entry);
 }
-const std::set<std::shared_ptr<Var>> &CFG::get_cfg_vars() const {
+const std::unordered_set<std::shared_ptr<Var>> &CFG::get_cfg_vars() const {
   return _cfg_vars;
 }
 
-const std::set<std::shared_ptr<Func>> &CFG::get_cfg_funcs() const {
+const std::unordered_set<std::shared_ptr<Func>> &CFG::get_cfg_funcs() const {
   return _cfg_funcs;
 }
 
-const std::set<std::shared_ptr<Node>> &CFG::get_cfg_nodes() const {
+const std::unordered_set<std::shared_ptr<Node>> &CFG::get_cfg_nodes() const {
   return _cfg_nodes;
 }
 
-const std::set<std::shared_ptr<Arc>> &CFG::get_cfg_arcs() const {
+const std::unordered_set<std::shared_ptr<Arc>> &CFG::get_cfg_arcs() const {
   return _cfg_arcs;
 }
 

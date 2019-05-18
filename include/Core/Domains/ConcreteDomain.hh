@@ -1,15 +1,20 @@
 #pragma once
 
-#include "Domain.hh"
 #include <cstdint>
+#include <map>
+#include <memory>
+#include <set>
 
-class ConcreteDomain : public Domain<std::map<std::string, std::uint64_t>> {
+class ConcreteDomain {
 public:
+  using Env = std::shared_ptr<std::map<std::string, std::uint64_t>>;
   ConcreteDomain();
-  std::map<std::string, uint64_t> init();
-  std::map<std::string, uint64_t> bottom();
+  Env init();
+  Env bottom();
+  Env assign(std::map<std::string, std::uint64_t> &map);
+  Env get_env() const;
 
 private:
-  std::map<std::string, std::uint64_t> _env;
+  Env _env; // instruction as key
   std::set<std::uint64_t> _val_set;
 };
