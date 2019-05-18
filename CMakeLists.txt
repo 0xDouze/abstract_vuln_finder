@@ -35,6 +35,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/
 	${CMAKE_CURRENT_SOURCE_DIR}/include/Core/Domains
 	${CMAKE_CURRENT_SOURCE_DIR}/include/Core/CFG
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/Core/Iterator
 	)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -std=c++17 -g -fno-exceptions")
@@ -52,13 +53,17 @@ add_executable(abstract_vuln src/main.cc
   src/Core/CFG/Graph.cc
   src/Core/CFG/Func.cc
   src/Core/CFG/CFG.cc
-  src/Core/CFG/TransformToCFG.cc)
+  src/Core/CFG/TransformToCFG.cc
+  src/Core/Iterator/Iterator.cc
+  src/Core/Domains/ConcreteDomain.cc)
 add_library(abstract_vuln_finder SHARED
 	src/IR_manip.cc
         src/Core/CFG/Graph.cc
         src/Core/CFG/Func.cc
         src/Core/CFG/CFG.cc
-        src/Core/CFG/TransformToCFG.cc)
+        src/Core/CFG/TransformToCFG.cc
+        src/Core/Iterator/Iterator.cc
+        src/Core/Domains/ConcreteDomain.cc)
 llvm_map_components_to_libnames(llvm_libs)
 
 target_link_libraries(abstract_vuln_finder LLVM ${llvm_libs})
