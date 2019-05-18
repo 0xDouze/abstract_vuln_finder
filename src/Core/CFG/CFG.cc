@@ -7,14 +7,14 @@ CFG::CFG() {}
 void CFG::add_arc(struct Env &env, std::shared_ptr<Arc> arc) {
   if (arc == nullptr)
     return;
-  _cfg_arcs.push_back(arc);
+  _cfg_arcs.insert(arc);
   add_node(env, arc->node_out);
 }
 
 void CFG::add_node(struct Env &env, std::shared_ptr<Node> node) {
   if (node == nullptr)
     return;
-  _cfg_nodes.push_back(node);
+  _cfg_nodes.insert(node);
   for (auto &I : node->arc_out)
     add_arc(env, I);
 }
@@ -24,7 +24,7 @@ void CFG::set_arcs_and_nodes(struct Env &env) {
     for (auto &I : env.env_func)
       add_node(env, I->func_entry);
 }
-const std::vector<std::shared_ptr<Var>> &CFG::get_cfg_vars() const {
+const std::set<std::shared_ptr<Var>> &CFG::get_cfg_vars() const {
   return _cfg_vars;
 }
 
@@ -32,11 +32,11 @@ const std::set<std::shared_ptr<Func>> &CFG::get_cfg_funcs() const {
   return _cfg_funcs;
 }
 
-const std::vector<std::shared_ptr<Node>> &CFG::get_cfg_nodes() const {
+const std::set<std::shared_ptr<Node>> &CFG::get_cfg_nodes() const {
   return _cfg_nodes;
 }
 
-const std::vector<std::shared_ptr<Arc>> &CFG::get_cfg_arcs() const {
+const std::set<std::shared_ptr<Arc>> &CFG::get_cfg_arcs() const {
   return _cfg_arcs;
 }
 
@@ -50,7 +50,7 @@ const std::shared_ptr<Node> &CFG::get_cfg_init_exit() const {
 
 void CFG::add_cfg_var(std::shared_ptr<Var> var) {
   if (var != nullptr)
-    _cfg_vars.push_back(var);
+    _cfg_vars.insert(var);
 }
 
 void CFG::add_cfg_func(std::shared_ptr<Func> func) {
@@ -60,12 +60,12 @@ void CFG::add_cfg_func(std::shared_ptr<Func> func) {
 
 void CFG::add_cfg_node(std::shared_ptr<Node> node) {
   if (node != nullptr)
-    _cfg_nodes.push_back(node);
+    _cfg_nodes.insert(node);
 }
 
 void CFG::add_cfg_arc(std::shared_ptr<Arc> arc) {
   if (arc != nullptr)
-    _cfg_arcs.push_back(arc);
+    _cfg_arcs.insert(arc);
 }
 
 void CFG::set_cfg_init_entry(std::shared_ptr<Node> init_entry) {
