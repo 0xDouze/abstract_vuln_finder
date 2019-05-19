@@ -26,11 +26,28 @@ int main(int ac, char **av) {
   CFG cfg;
   TransformToCFG tcc(IR);
   cfg = tcc.transform_ir_to_cfg();
-  cfg.print_cfg_to_dot();
-
+  // cfg.print_cfg_to_dot();
+  //  std::shared_ptr<Func> func;
+  //  for (auto &F : cfg.get_cfg_funcs())
+  //    if (F->name.find("main") != std::string::npos)
+  //    {
+  //      func = F;
+  //      break;
+  //    }
+  //
+  //  std::cout << func->name << "\n";
+  //  for (auto &A : func->args)
+  //  {
+  //    if (auto retval = llvm::dyn_cast<llvm::Value>(A))
+  //      std::cout << retval->getName().str() << "\n";
+  //  }
   ConcreteDomain domain;
 
   Iterator<ConcreteDomain, ConcreteDomain::Env> iterator(cfg);
   domain = iterator(domain);
+  std::set<ConcreteDomain::Env> all = domain.get_complete_env();
+
+  for (auto &S : all)
+    domain.print_env(S);
   return 0;
 }
