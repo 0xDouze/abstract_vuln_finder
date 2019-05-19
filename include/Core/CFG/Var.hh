@@ -28,6 +28,14 @@ struct Var {
     return val->getName();
   }
 
+  const std::string get_function_name() const {
+    if (pos->inst->getParent() == nullptr &&
+        pos->inst->getParent()->getParent() == nullptr)
+      return "";
+    else
+      return pos->inst->getParent()->getParent()->getName();
+  }
+
   int id; // unique variable identifier
 
   /// Pointer to an llvm::Value which contains all the informations
