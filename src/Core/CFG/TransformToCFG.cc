@@ -16,6 +16,8 @@ void TransformToCFG::translate_func_to_cfg(llvm::Function *func,
   std::vector<std::shared_ptr<Var>> retval;
   std::shared_ptr<Func> func_desc;
 
+  for (auto &A : func->args())
+    args.push_back(&A);
   _ir.add_BB_to_worklist(func, blocks);
   if (blocks.empty()) {
     func_desc = create_func(func->getName(), entry, exit, 0, args, retval);
