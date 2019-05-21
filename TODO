@@ -1,11 +1,14 @@
 Tests
-Real Documentation
-CFG:
-iterator on cfg and worklist with abstract values
+
+Iterator:
+iterator on cfg and worklist with abstract values // WIP
 interval domain implementation
 
-Take a look at std::pmr::unsynchronized_pool_resource for allocation of data (ssa is great for analysis but creates a lot of information)
-
-De-recursivise my funcs
-
+CFG:
 Probably do lazy cfg construction at some point (why did I start this project? I haven't even started the main thing and i already have 10000 things to do ahah. Knew I should have been a woodcutter)
+
+To have any useful results:
+Implement memory layout abstraction
+Implement domain to manipulate integers and pointers the same way
+interval domain
+Reduced product of all of the above
