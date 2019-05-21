@@ -1,18 +1,19 @@
 #include "ConcreteDomain.hh"
 #include <iostream>
 
-ConcreteDomain::ConcreteDomain() {}
-
 ConcreteDomain::Env ConcreteDomain::init() {
   ConcreteDomain::Env env =
       std::make_shared<std::set<std::pair<std::string, std::uint64_t>>>();
-  _env.insert(env);
+  _env.push_back(env);
+  //  std::sort(_env.begin(), _env.end(), compare_function);
+  // auto last = std::unique(_env.begin(), _env.end());
+  //_env.erase(last, _env.end());
   return env;
 }
 
 ConcreteDomain::Env ConcreteDomain::bottom() { return nullptr; }
 
-std::set<ConcreteDomain::Env> &ConcreteDomain::get_complete_env() {
+std::vector<ConcreteDomain::Env> &ConcreteDomain::get_complete_env() {
   return _env;
 }
 
@@ -30,15 +31,18 @@ void ConcreteDomain::print_env(Env env) const {
   if (env == nullptr)
     return;
 
-  std::cout << "{\n";
   for (auto &S : *env)
     std::cout << "[ " << S.first << " = " << S.second << " ], ";
-
-  std::cout << "\n}\n";
+  std::cout << "\n";
 }
 
 ConcreteDomain::Env ConcreteDomain::add_var(ConcreteDomain::Env env,
                                             std::string name) {
-  env->insert(std::make_pair(name, 0));
+  env->insert(std::make_pair(name, top));
   return env;
+}
+
+bool ConcreteDomain::compare_function(ConcreteDomain::Env env1,
+                                      ConcreteDomain::Env env2) {
+  return (*env1->begin()).first == ((*env2->begin()).first);
 }

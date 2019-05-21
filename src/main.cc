@@ -45,9 +45,11 @@ int main(int ac, char **av) {
 
   Iterator<ConcreteDomain, ConcreteDomain::Env> iterator(cfg);
   domain = iterator(domain);
-  std::set<ConcreteDomain::Env> all = domain.get_complete_env();
-
-  for (auto &S : all)
+  std::vector<ConcreteDomain::Env> all = domain.get_complete_env();
+  int i = 0;
+  for (auto &S : all) {
+    std::cout << i++ << "\n";
     domain.print_env(S);
+  }
   return 0;
 }
