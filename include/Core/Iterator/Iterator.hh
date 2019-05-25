@@ -111,6 +111,5 @@ void Iterator<T, V>::eval_stat(V env, llvm::Instruction *inst, T &dom) {
       dom.add_var(env, retval->getName());
 }
 
-template<typename T, typename V>
-void Iterator<T, V>::invariant_propagation()
-{}
+template <typename T, typename V>
+void Iterator<T, V>::invariant_propagation() {}

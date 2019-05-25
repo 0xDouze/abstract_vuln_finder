@@ -27,6 +27,7 @@ class ConcreteDomain {
 public:
   ConcreteDomain() { std::cout << _env.size(); };
   using Env = std::shared_ptr<std::set<std::pair<std::string, std::uint64_t>>>;
+
   Env init();
   Env bottom();
   Env assign(Env env, std::string var, llvm::Instruction *expr);
@@ -40,5 +41,5 @@ private:
   static bool compare_function(Env env1, Env env2);
   std::vector<Env> _env;
   std::vector<std::uint64_t> _val_set;
-  std::uint64_t top = UINT64_MAX; //bounded lattice
+  std::uint64_t top = UINT64_MAX; // bounded lattice
 };

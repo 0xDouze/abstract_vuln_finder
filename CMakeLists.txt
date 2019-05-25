@@ -54,14 +54,16 @@ add_executable(abstract_vuln src/main.cc
   src/Core/CFG/Func.cc
   src/Core/CFG/CFG.cc
   src/Core/CFG/TransformToCFG.cc
-  src/Core/Domains/ConcreteDomain.cc)
+  src/Core/Domains/ConcreteDomain.cc
+  src/Core/Domains/Intervals.cc)
 add_library(abstract_vuln_finder SHARED
 	src/IR_manip.cc
         src/Core/CFG/Graph.cc
         src/Core/CFG/Func.cc
         src/Core/CFG/CFG.cc
         src/Core/CFG/TransformToCFG.cc
-        src/Core/Domains/ConcreteDomain.cc)
+        src/Core/Domains/ConcreteDomain.cc
+        src/Core/Domains/Intervals.cc)
 llvm_map_components_to_libnames(llvm_libs)
 
 target_link_libraries(abstract_vuln_finder LLVM ${llvm_libs})
