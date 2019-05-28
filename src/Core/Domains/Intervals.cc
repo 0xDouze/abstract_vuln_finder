@@ -53,8 +53,13 @@ void IntervalDomain::set_top(std::shared_ptr<struct Interval> val)
     std::cerr << "Error while trying to set top from interval\n";
     return;
   }
+  if (val->min == nullptr)
+    val->min = new struct Bound;
+  if (val->max == nullptr)
+    val->max = new struct Bound;
   val->min->inf = true;
   val->max->inf = true;
+  val->dim = 1;
 }
 
 void IntervalDomain::set_top(AbstractValue &val) {
@@ -86,8 +91,9 @@ void IntervalDomain::set_top(AbstractValue &val) {
 IntervalDomain::AbstractValue &IntervalDomain::add_var(std::string &varname,
                                                        unsigned dim) {
   _abstract_values[varname] = std::vector<std::shared_ptr<struct Interval>>();
-  for (unsigned i = 0; i < dim; ++i)
+  for (unsigned i = 0; i < dim; ++i) {
     _abstract_values[varname].push_back(std::make_shared<struct Interval>());
+  }
   set_top(_abstract_values[varname]);
   return _abstract_values[varname];
 }
@@ -122,43 +128,151 @@ IntervalDomain::AbstractValue &IntervalDomain::assign_val(AbstractValue &dst,
 
 void IntervalDomain::bound_max(std::shared_ptr<struct Interval> out, const std::shared_ptr<struct Interval> &left, const std::shared_ptr<struct Interval> &right)
 {
-  if (out == nullptr)
-    out = std::make_shared<struct Interval>();
+  if (out == nullptr) {
+    std::cerr << "Error while trying to bound max\n";
+    return;
+  }
   if (IntervalDomain::is_top(left) || IntervalDomain::is_top(right))
     set_top(out);
+  if (IntervalDomain::is_bottom(left) && IntervalDomain::is_bottom(right))
+    set_bottom(out);
+  else if (IntervalDomain::is_bottom(left)) {
+    out->min->val = right->min->val;
+    out->min->inf = right->min->inf;
+    out->max->val = right->min->val;
+    out->max->inf = right->min->val;
+    out->dim = right->dim;
+  }
+  else if (IntervalDomain::is_bottom(right)) {
+    out->min->val = left->min->val;
+    out->min->inf = left->min->inf;
+    out->max->val = left->max->val;
+    out->max->inf = left->max->inf;
+    out->dim = left->dim;
+  }
   else{
     out->min->val = (left->min->val >= right->min->val ? left->min->val : right->min->val);
+    out->min->inf = (left->min->val >= right->min->val ? left->min->inf : right->min->inf);
     out->max->val = (left->max->val >= right->max->val ? left->max->val : right->max->val);
+    out->max->inf = (left->max->val >= right->max->val ? left->max->inf : right->max->inf);
     out->dim = (left->dim >= right->dim ? left->dim : right->dim);
   }
 }
 
-std::shared_ptr<struct Interval> IntervalDomain::join(const std::shared_ptr<struct Interval> &left, const std::shared_ptr<struct Interval> &right)
+// the dim won't mean anything, it's getting weird
+void IntervalDomain::bound_min(std::shared_ptr<struct Interval> out, const std::shared_ptr<struct Interval> &left, const std::shared_ptr<struct Interval> &right){
+  if (out == nullptr){
+    std::cerr << "Error while trying to bound min\n";
+    return;
+  }
+  if (left == nullptr || right == nullptr || IntervalDomain::is_bottom(left) || IntervalDomain::is_bottom(right))
+    set_bottom(out);
+  else if (IntervalDomain::is_top(left) && IntervalDomain::is_top(right))
+    set_top(out);
+  else if (IntervalDomain::is_top(left))
+  {
+    out->min->val = right->min->val;
+    out->min->inf = right->min->inf;
+    out->max->val = right->min->val;
+    out->max->inf = right->min->val;
+    out->dim = right->dim;
+  }
+  else if (IntervalDomain::is_top(right)) {
+    out->min->val = left->min->val;
+    out->min->inf = left->min->inf;
+    out->max->val = left->max->val;
+    out->max->inf = left->max->inf;
+    out->dim = left->dim;
+  }
+  else{
+    out->min->val = (left->min->val <= right->min->val ? left->min->val : right->min->val);
+    out->min->inf = (left->min->val <= right->min->val ? left->min->inf : right->min->inf);
+    out->max->val = (left->max->val <= right->max->val ? left->max->val : right->max->val);
+    out->max->inf = (left->max->val <= right->max->val ? left->max->inf : right->max->inf);
+    out->dim = (left->dim <= right->dim ? left->dim : right->dim);
+  }
+}
+
+//might need to change it so that inf is min of the bound
+IntervalDomain::AbstractValue IntervalDomain::join(IntervalDomain::AbstractValue &left, IntervalDomain::AbstractValue &right)
+{
+  IntervalDomain::AbstractValue out;
+
+  if (left.empty())
+    out = right;
+  else if (right.empty())
+    out = left;
+  else
+  {
+    auto newsize = (left.size() >= right.size() ? right.size() : left.size());
+    for (unsigned i = 0; i < newsize; ++i)
+    {
+      out.push_back(interval_join(left[i], right[i]));
+    }
+  }
+  return out;
+}
+
+IntervalDomain::AbstractValue IntervalDomain::meet(IntervalDomain::AbstractValue &left, IntervalDomain::AbstractValue &right)
+{
+  IntervalDomain::AbstractValue out;
+
+  if ((*left.begin())->max == nullptr || (*right.begin())->max == nullptr)
+    set_bottom(out);
+  else
+  {
+    auto newsize = left.size() + right.size();
+    for (unsigned i = 0; i < newsize; ++i)
+      out.push_back(interval_meet(left[i], right[i]));
+  }
+  return out;
+}
+std::shared_ptr<struct Interval> IntervalDomain::interval_join(const std::shared_ptr<struct Interval> &left, const std::shared_ptr<struct Interval> &right)
 {
   std::shared_ptr<struct Interval> out;
 
-  if (IntervalDomain::is_bottom(left))
+  if (left == nullptr || IntervalDomain::is_bottom(left))
   {
-    if (IntervalDomain::is_bottom(right) == false)
-      out = right;
+    if (right != nullptr && IntervalDomain::is_bottom(right) == false) {
+      out = std::make_shared<struct Interval>();
+      out->min = new struct Bound;
+      out->max = new struct Bound;
+      out->dim = right->dim;
+      out->max->inf = right->max->inf;
+      out->max->val = right->max->val;
+      out->min->inf = right->min->inf;
+      out->min->val = right->min->val;
+    }
     return out;
   }
-  else if (IntervalDomain::is_bottom(right))
+  else if (right == nullptr || IntervalDomain::is_bottom(right))
   {
-    out = left;
+      out = std::make_shared<struct Interval>();
+      out->min = new struct Bound;
+      out->max = new struct Bound;
+      out->dim = left->dim;
+      out->max->inf = left->max->inf;
+      out->max->val = left->max->val;
+      out->min->inf = left->min->inf;
+      out->min->val = left->min->val;
     return out;
   }
   else {
+    out = std::make_shared<struct Interval>();
+    out->max = new struct Bound;
+    out->min = new struct Bound;
     bound_max(out, left, right);
     return out;
   }
 }
 
-std::shared_ptr<struct Interval> IntervalDomain::meet(const std::shared_ptr<struct Interval> &left, const std::shared_ptr<struct Interval> &right)
+std::shared_ptr<struct Interval> IntervalDomain::interval_meet(const std::shared_ptr<struct Interval> &left, const std::shared_ptr<struct Interval> &right)
 {
-  (void)left;
-  (void)right;
-  return nullptr;
+  std::shared_ptr<struct Interval> out = std::make_shared<struct Interval>();
+  out->max = new struct Bound;
+  out->min = new struct Bound;
+  bound_min(out, left, right);
+  return out;
 }
 
 void IntervalDomain::print_env() const {
@@ -186,6 +300,51 @@ void IntervalDomain::print_env() const {
   }
 }
 
+void IntervalDomain::print_itv(const std::shared_ptr<struct Interval> &itv)
+{
+  if (itv == nullptr)
+    return;
+
+  std::cout << "print itv\t";
+  if (is_bottom(itv))
+    std::cout << "BOT";
+  else if (is_top(itv))
+    std::cout << "[-inf, +inf]";
+  else
+  {
+    if (itv->min->inf == true)
+      std::cout << "[-inf, ";
+    else
+      std::cout << "[" << itv->min->val << ", ";
+
+    if (itv->max->inf == true)
+      std::cout << "+inf]\n";
+    else
+      std::cout << itv->max->val << "]\n";
+  }
+}
+
+void IntervalDomain::print_abst_val(const IntervalDomain::AbstractValue &val)
+{
+    for (auto &V : val) {
+      std::cout << " [ ";
+      if (is_top(V))
+        std::cout << V->max->val << " " << V->min->val << " -inf, +inf ]\n";
+      else if (is_bottom(V))
+        std::cout << "BOT ]\n";
+      else {
+        if (V->min->inf == true)
+          std::cout << "-inf, ";
+        else
+          std::cout << V->min->val << ", ";
+
+        if (V->max->inf == true)
+          std::cout << "+inf ]\n";
+        else
+          std::cout << V->max->val << " ]\n";
+      }
+  }
+}
 bool IntervalDomain::is_bottom(const std::shared_ptr<struct Interval> &val){
   if (val == nullptr)
     return true;

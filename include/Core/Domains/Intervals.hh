@@ -19,23 +19,6 @@ struct Interval {
   int dim;
 };
 
-// class IntervalDomain {
-// public:
-//  IntervalDomain() = default;
-//  using Env = std::shared_ptr<
-//      std::map<std::string, std::pair<std::uint32_t, std::uint32_t>>>;
-//  Env top();
-//  Env bottom();
-//  Env constant(std::uint32_t c);
-//  Env join(Env env1, Env env2);
-//  Env meet(Env env1, Env env2);
-//  bool is_subset(Env subset, Env set);
-//  bool is_bottom(Env env);
-//  static void print_env(Env env);
-//  Env unary(Env env, llvm::UnaryInstruction *inst);
-//  Env binary(Env left, Env right, llvm::BinaryOperator *inst);
-//};
-
 /// Class for the interval domain.
 class IntervalDomain {
 public:
@@ -53,13 +36,10 @@ public:
   void set_top(AbstractValue &val);
   void set_top(std::shared_ptr<struct Interval> val);
   void set_bottom(std::shared_ptr<struct Interval> val);
-  std::shared_ptr<struct Interval>
-  join(const std::shared_ptr<struct Interval> &left,
-       const std::shared_ptr<struct Interval> &right);
-  std::shared_ptr<struct Interval>
-  meet(const std::shared_ptr<struct Interval> &left,
-       const std::shared_ptr<struct Interval> &right);
   AbstractValue &add_var(std::string &varname, unsigned dim);
+
+  AbstractValue join(AbstractValue &left, AbstractValue &right);
+  AbstractValue meet(AbstractValue &left, AbstractValue &right);
 
   /// Assign_val assigns the interval found in src into dst.
   /// if src is empty, returns dst unmodified
@@ -69,11 +49,24 @@ public:
   // might have a problem with mixing abstractvalue and intervals
   // not sure how it will turn out. might have to redo it later.
   void print_env() const;
+  static void print_itv(const std::shared_ptr<struct Interval> &itv);
+  static void print_abst_val(const AbstractValue &val);
   static bool is_bottom(const std::shared_ptr<struct Interval> &val);
   static bool is_top(const std::shared_ptr<struct Interval> &val);
   void operator()(const CFG &cfg);
 
+private:
+  std::shared_ptr<struct Interval>
+  interval_join(const std::shared_ptr<struct Interval> &left,
+                const std::shared_ptr<struct Interval> &right);
+  std::shared_ptr<struct Interval>
+  interval_meet(const std::shared_ptr<struct Interval> &left,
+                const std::shared_ptr<struct Interval> &right);
   void bound_max(std::shared_ptr<struct Interval> out,
+                 const std::shared_ptr<struct Interval> &left,
+                 const std::shared_ptr<struct Interval> &right);
+
+  void bound_min(std::shared_ptr<struct Interval> out,
                  const std::shared_ptr<struct Interval> &left,
                  const std::shared_ptr<struct Interval> &right);
 
