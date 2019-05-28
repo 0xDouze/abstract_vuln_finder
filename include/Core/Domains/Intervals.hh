@@ -1,10 +1,10 @@
 #pragma once
+#include "CFG.hh"
 #include <iostream>
 #include <llvm/IR/Instruction.h>
 #include <llvm/IR/Instructions.h>
 #include <map>
 #include <memory>
-#include "CFG.hh"
 
 struct Bound {
   Bound() = default;
@@ -51,8 +51,14 @@ public:
   Env &get_env();
   void set_bottom(AbstractValue &val);
   void set_top(AbstractValue &val);
-  AbstractValue &join(AbstractValue &left, const AbstractValue &right);
-  AbstractValue &meet(AbstractValue &left, const AbstractValue &right);
+  void set_top(std::shared_ptr<struct Interval> val);
+  void set_bottom(std::shared_ptr<struct Interval> val);
+  std::shared_ptr<struct Interval>
+  join(const std::shared_ptr<struct Interval> &left,
+       const std::shared_ptr<struct Interval> &right);
+  std::shared_ptr<struct Interval>
+  meet(const std::shared_ptr<struct Interval> &left,
+       const std::shared_ptr<struct Interval> &right);
   AbstractValue &add_var(std::string &varname, unsigned dim);
 
   /// Assign_val assigns the interval found in src into dst.
@@ -60,10 +66,17 @@ public:
   /// else returns a dst with the new interval
   AbstractValue &assign_val(AbstractValue &dst, AbstractValue &src);
 
+  // might have a problem with mixing abstractvalue and intervals
+  // not sure how it will turn out. might have to redo it later.
   void print_env() const;
-  bool is_bottom(const AbstractValue &val) const;
-  bool is_top(const AbstractValue &val) const;
+  static bool is_bottom(const std::shared_ptr<struct Interval> &val);
+  static bool is_top(const std::shared_ptr<struct Interval> &val);
   void operator()(const CFG &cfg);
+
+  void bound_max(std::shared_ptr<struct Interval> out,
+                 const std::shared_ptr<struct Interval> &left,
+                 const std::shared_ptr<struct Interval> &right);
+
 private:
   Env _abstract_values;
 };
