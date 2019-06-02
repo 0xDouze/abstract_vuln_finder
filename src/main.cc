@@ -14,24 +14,22 @@
 // This main is a crime against memory
 // Tiny cells die each time this main is executed
 int main(int ac, char **av) {
-  (void)ac;
-  (void)av;
-  //  if (ac != 2) {
-  //    llvm::errs() << "Usage: " << av[0] << " <IR file>\n";
-  //    return -1;
-  //  }
-  //
-  //  llvm::SMDiagnostic Err;
-  //  llvm::LLVMContext Context;
-  //  IR_manip IR(av[1], Context, Err);
-  //  if (IR.check_module() == -1) {
-  //    Err.print(av[0], llvm::errs());
-  //    return -1;
-  //  }
-  //
-  //  CFG cfg;
-  //  TransformToCFG tcc(IR);
-  //  cfg = tcc.transform_ir_to_cfg();
+  if (ac != 2) {
+    llvm::errs() << "Usage: " << av[0] << " <IR file>\n";
+    return -1;
+  }
+
+  llvm::SMDiagnostic Err;
+  llvm::LLVMContext Context;
+  IR_manip IR(av[1], Context, Err);
+  if (IR.check_module() == -1) {
+    Err.print(av[0], llvm::errs());
+    return -1;
+  }
+
+  CFG cfg;
+  TransformToCFG tcc(IR);
+  cfg = tcc.transform_ir_to_cfg();
   // cfg.print_cfg_to_dot();
   //  std::shared_ptr<Func> func;
   //  for (auto &F : cfg.get_cfg_funcs())
@@ -86,6 +84,8 @@ int main(int ac, char **av) {
   itv.print_abst_val(truc);
   auto jointest = itv.meet(truc, val);
   itv.assign_val(val, jointest);
-  itv.print_env();
+  itv.print_abst_val(val);
+  Iterator<IntervalDomain, IntervalDomain::AbstractValue> ite(cfg);
+  //  itv.print_env();
   return 0;
 }

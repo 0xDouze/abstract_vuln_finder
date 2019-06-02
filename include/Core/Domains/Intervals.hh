@@ -23,6 +23,7 @@ struct Interval {
 class IntervalDomain {
 public:
   IntervalDomain() = default;
+  IntervalDomain(const CFG &cfg);
   ~IntervalDomain();
 
   using AbstractValue = std::vector<std::shared_ptr<struct Interval>>;
@@ -53,9 +54,8 @@ public:
   static void print_abst_val(const AbstractValue &val);
   static bool is_bottom(const std::shared_ptr<struct Interval> &val);
   static bool is_top(const std::shared_ptr<struct Interval> &val);
-  void operator()(const CFG &cfg);
 
-private:
+protected:
   std::shared_ptr<struct Interval>
   interval_join(const std::shared_ptr<struct Interval> &left,
                 const std::shared_ptr<struct Interval> &right);

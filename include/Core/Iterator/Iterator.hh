@@ -1,14 +1,20 @@
 #pragma once
 
 #include "CFG.hh"
-#include "ConcreteDomain.hh"
 #include "Func.hh"
 #include <llvm/IR/Instructions.h>
+
+/// Iterator class: This class is used to abstract the cfg with
+/// the wanted domain.
+/// @param T: Domain class name
+/// @param V: Abstract Value type in domain class (ex:
+/// IntervalDomain::AbstractValue)
 
 template <typename T, typename V> class Iterator {
 public:
   Iterator(const CFG &cfg);
   T &operator()(T &dom);
+  T cfg_to_dom();
 
 private:
   void set_init_worklist(std::shared_ptr<Func>, T &dom);
