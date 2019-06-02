@@ -16,6 +16,23 @@ IntervalDomain::~IntervalDomain() {
 
 IntervalDomain::Env &IntervalDomain::get_env() { return _abstract_values; }
 
+IntervalDomain::AbstractValue IntervalDomain::init_abs_val()
+{
+  IntervalDomain::AbstractValue val;
+  set_top(val);
+  return val;
+}
+
+void IntervalDomain::update_env(std::string &name, AbstractValue &val)
+{
+  _abstract_values[name] = val;
+}
+
+IntervalDomain::AbstractValue &IntervalDomain::get_val_from_env(std::string &name)
+{
+  return _abstract_values[name];
+}
+
 void IntervalDomain::set_bottom(AbstractValue &val) {
   if (val.empty()) {
     std::cerr << "Error when trying to bottom an abstract value\n";

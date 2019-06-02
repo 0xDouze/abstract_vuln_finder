@@ -29,16 +29,19 @@ public:
   using AbstractValue = std::vector<std::shared_ptr<struct Interval>>;
   /// Type of the environment. For ease of typing.
   using Env = std::map<std::string, AbstractValue>;
+  Env &get_env();
 
   /// Init the environment, with nothing inside. Returns a reference to the
   /// environment.
-  Env &get_env();
+  AbstractValue init_abs_val();
   void set_bottom(AbstractValue &val);
   void set_top(AbstractValue &val);
   void set_top(std::shared_ptr<struct Interval> val);
   void set_bottom(std::shared_ptr<struct Interval> val);
   AbstractValue &add_var(std::string &varname, unsigned dim);
 
+  void update_env(std::string &name, AbstractValue &val);
+  AbstractValue &get_val_from_env(std::string &name);
   AbstractValue join(AbstractValue &left, AbstractValue &right);
   AbstractValue meet(AbstractValue &left, AbstractValue &right);
 
