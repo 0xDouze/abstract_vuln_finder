@@ -30,7 +30,7 @@ int main(int ac, char **av) {
   CFG cfg;
   TransformToCFG tcc(IR);
   cfg = tcc.transform_ir_to_cfg();
-  // cfg.print_cfg_to_dot();
+  cfg.print_cfg_to_dot();
   //  std::shared_ptr<Func> func;
   //  for (auto &F : cfg.get_cfg_funcs())
   //    if (F->name.find("main") != std::string::npos)
@@ -56,37 +56,38 @@ int main(int ac, char **av) {
   //   domain.print_env(S);
   // }
 
-  IntervalDomain itv;
-  std::string test = "coucou";
-  auto &val = itv.add_var(test, 1);
-
-  IntervalDomain::AbstractValue truc;
-  auto itv2 = std::make_shared<struct Interval>();
-  itv2->dim = 1;
-  itv2->max = new struct Bound;
-  itv2->min = new struct Bound;
-  itv2->max->inf = false;
-  itv2->max->val = 42;
-  itv2->min->inf = false;
-  itv2->min->val = 12;
-  val.insert(val.begin(), itv2);
-  val.pop_back();
-  itv.print_abst_val(val);
-  auto itv3 = std::make_shared<struct Interval>();
-  itv3->dim = 1;
-  itv3->max = new struct Bound;
-  itv3->min = new struct Bound;
-  itv3->max->inf = false;
-  itv3->max->val = 41;
-  itv3->min->inf = false;
-  itv3->min->val = 13;
-  truc.push_back(itv3);
-  itv.print_abst_val(truc);
-  auto jointest = itv.meet(truc, val);
-  itv.assign_val(val, jointest);
-  itv.print_abst_val(val);
+  //  IntervalDomain itv;
+  //  std::string test = "coucou";
+  //  auto &val = itv.add_var(test, 1);
+  //
+  //  IntervalDomain::AbstractValue truc;
+  //  auto itv2 = std::make_shared<struct Interval>();
+  //  itv2->dim = 1;
+  //  itv2->max = new struct Bound;
+  //  itv2->min = new struct Bound;
+  //  itv2->max->inf = false;
+  //  itv2->max->val = 42;
+  //  itv2->min->inf = false;
+  //  itv2->min->val = 12;
+  //  val.insert(val.begin(), itv2);
+  //  val.pop_back();
+  //  itv.print_abst_val(val);
+  //  auto itv3 = std::make_shared<struct Interval>();
+  //  itv3->dim = 1;
+  //  itv3->max = new struct Bound;
+  //  itv3->min = new struct Bound;
+  //  itv3->max->inf = false;
+  //  itv3->max->val = 41;
+  //  itv3->min->inf = false;
+  //  itv3->min->val = 13;
+  //  truc.push_back(itv3);
+  //  itv.print_abst_val(truc);
+  //  auto jointest = itv.meet(truc, val);
+  //  itv.assign_val(val, jointest);
+  //  itv.print_abst_val(val);
 
   Iterator<IntervalDomain> ite(cfg);
+  auto tamere = ite.compute_dom_from_cfg();
   // Iterator<IntervalDomain, IntervalDomain::AbstractValue> ite(cfg);
   //  itv.print_env();
   return 0;

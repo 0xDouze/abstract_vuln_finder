@@ -1,10 +1,40 @@
 #pragma once
 #include "Iterator.hh"
+#include <llvm/IR/Instructions.h>
 
 template <typename T>
-Iterator<T>::Iterator(const CFG &cfg) : _cfg(cfg){
-  auto domain = T();
-  _dom = domain;
+Iterator<T>::Iterator(const CFG &cfg) :_dom(), _cfg(cfg){
+}
+
+template <typename T>
+void Iterator<T>::compute_abs(){
+  while (_worklist.empty() == false)
+  {
+    break;
+  }
+}
+
+// init
+// while (_worklist != empty)
+// curr_node = join(preds)
+// if (curr_node != node)
+//  _worklist.push(*succ)
+template <typename T>
+T Iterator<T>::compute_dom_from_cfg(){
+  std::shared_ptr<Func> entry = nullptr;
+
+  for (auto &A : _cfg.get_cfg_funcs())
+    if (A->name.find("main") != std::string::npos){
+      entry = A;
+      break;
+    }
+  if (entry == nullptr)
+    std::cerr << "weird\n";
+  std::cout << entry->name << "\n";
+  init_worklist(entry);
+
+  compute_abs();
+  return std::move(_dom);
 }
 
 template <typename T>
@@ -50,6 +80,7 @@ void Iterator<T>::init_worklist(std::shared_ptr<Func> entry)
   }
   for (auto &V : _worklist)
     std::cout << V->id << "\n";
+  _dom.print_env();
 }
 
 // Doing this because we have two other choices: (hate it though)
@@ -151,6 +182,9 @@ void Iterator<T>::eval_stat(llvm::Instruction *inst)
     if (auto retval = llvm::dyn_cast<llvm::Value>(inst))
     _dom.update_env(retval->getName(), _dom.init_abs_val());
   if (llvm::isa<llvm::InsertValueInst>(inst))
+    if (auto retval = llvm::dyn_cast<llvm::Value>(inst))
+    _dom.update_env(retval->getName(), _dom.init_abs_val());
+  if (llvm::isa<llvm::CallInst>(inst))
     if (auto retval = llvm::dyn_cast<llvm::Value>(inst))
     _dom.update_env(retval->getName(), _dom.init_abs_val());
 }
