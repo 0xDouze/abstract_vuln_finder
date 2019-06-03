@@ -85,7 +85,9 @@ int main(int ac, char **av) {
   auto jointest = itv.meet(truc, val);
   itv.assign_val(val, jointest);
   itv.print_abst_val(val);
-  Iterator<IntervalDomain, IntervalDomain::AbstractValue> ite(cfg);
+
+  Iterator<IntervalDomain> ite(cfg);
+  // Iterator<IntervalDomain, IntervalDomain::AbstractValue> ite(cfg);
   //  itv.print_env();
   return 0;
 }
