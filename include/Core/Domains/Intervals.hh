@@ -40,7 +40,7 @@ public:
   void set_bottom(std::shared_ptr<struct Interval> val);
   AbstractValue &add_var(std::string &varname, unsigned dim);
 
-  void update_env(std::string &name, AbstractValue &val);
+  void update_env(std::string name, AbstractValue val);
   AbstractValue &get_val_from_env(std::string &name);
   AbstractValue join(AbstractValue &left, AbstractValue &right);
   AbstractValue meet(AbstractValue &left, AbstractValue &right);
