@@ -3,6 +3,11 @@
 #include <algorithm>
 #include <cstdint>
 
+IntervalDomain::IntervalDomain(IntervalDomain &&o)
+    : _abstract_values(o._abstract_values) {
+  _abstract_values.clear();
+}
+
 IntervalDomain::~IntervalDomain() {
   for (auto &M : _abstract_values) {
     for (auto &V : M.second) {

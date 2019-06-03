@@ -14,6 +14,12 @@ struct Bound {
 
 struct Interval {
   Interval() = default;
+  Interval(const Interval& o) = delete;
+  Interval& operator=(const Interval &o) =delete;
+  Interval(Interval &&o): min(o.min), max(o.max), dim(o.dim) {
+    o.min = nullptr;
+    o.max = nullptr;
+  }
   Bound *min;
   Bound *max;
   int dim;
@@ -24,6 +30,9 @@ class IntervalDomain {
 public:
   IntervalDomain() = default;
   IntervalDomain(const CFG &cfg);
+  IntervalDomain(const IntervalDomain& o) = delete;
+  IntervalDomain& operator=(const IntervalDomain &o) = delete;
+  IntervalDomain(IntervalDomain &&o);
   ~IntervalDomain();
 
   using AbstractValue = std::vector<std::shared_ptr<struct Interval>>;
