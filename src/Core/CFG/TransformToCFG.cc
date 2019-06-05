@@ -28,6 +28,8 @@ void TransformToCFG::translate_func_to_cfg(llvm::Function *func,
   func_desc = create_func(func->getName(), entry, exit, 0, args, retval);
   _func_envs.push_back(std::make_pair(env, func_desc));
   get_data_pass(func_desc, blocks);
+  if (func_desc->bb_cnt == 0)
+    return;
   create_graph_pass(env, func_desc, blocks);
 }
 
