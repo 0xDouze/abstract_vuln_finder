@@ -88,7 +88,8 @@ int main(int ac, char **av) {
   //  itv.print_abst_val(val);
 
   Iterator<IntervalDomain> ite(cfg);
-  auto tamere = ite.compute_dom_from_cfg();
+  IntervalDomain tamere = ite.compute_dom_from_cfg();
+  tamere.print_env();
   // Iterator<IntervalDomain, IntervalDomain::AbstractValue> ite(cfg);
   //  itv.print_env();
   return 0;
