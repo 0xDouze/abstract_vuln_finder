@@ -1,8 +1,6 @@
 #pragma once
 #include "CFG.hh"
 #include <iostream>
-#include <llvm/IR/Instruction.h>
-#include <llvm/IR/Instructions.h>
 #include <map>
 #include <memory>
 
@@ -14,9 +12,9 @@ struct Bound {
 
 struct Interval {
   Interval() = default;
-  Interval(const Interval& o) = delete;
-  Interval& operator=(const Interval &o) =delete;
-  Interval(Interval &&o): min(o.min), max(o.max), dim(o.dim) {
+  Interval(const Interval &o) = delete;
+  Interval &operator=(const Interval &o) = delete;
+  Interval(Interval &&o) : min(o.min), max(o.max), dim(o.dim) {
     o.min = nullptr;
     o.max = nullptr;
   }
@@ -30,8 +28,8 @@ class IntervalDomain {
 public:
   IntervalDomain() = default;
   IntervalDomain(const CFG &cfg);
-  IntervalDomain(const IntervalDomain& o) = delete;
-  IntervalDomain& operator=(const IntervalDomain &o) = delete;
+  IntervalDomain(const IntervalDomain &o) = delete;
+  IntervalDomain &operator=(const IntervalDomain &o) = delete;
   IntervalDomain(IntervalDomain &&o);
   ~IntervalDomain();
 
@@ -66,6 +64,8 @@ public:
   static void print_abst_val(const AbstractValue &val);
   static bool is_bottom(const std::shared_ptr<struct Interval> &val);
   static bool is_top(const std::shared_ptr<struct Interval> &val);
+
+  AbstractValue eval_stat(const std::shared_ptr<Arc> &arc);
 
 protected:
   std::shared_ptr<struct Interval>

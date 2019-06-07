@@ -5,7 +5,7 @@
 
 IntervalDomain::IntervalDomain(IntervalDomain &&o)
     : _abstract_values(o._abstract_values) {
-  _abstract_values.clear();
+  o._abstract_values.clear();
 }
 
 IntervalDomain::~IntervalDomain() {
@@ -343,7 +343,7 @@ void IntervalDomain::print_abst_val(const IntervalDomain::AbstractValue &val) {
   for (auto &V : val) {
     std::cout << " [ ";
     if (is_top(V))
-      std::cout << V->max->val << " " << V->min->val << " -inf, +inf ]\n";
+      std::cout << "-inf, +inf ]\n";
     else if (is_bottom(V))
       std::cout << "BOT ]\n";
     else {
@@ -372,4 +372,71 @@ bool IntervalDomain::is_top(const std::shared_ptr<struct Interval> &val) {
     return false;
 
   return val->max->inf == true && val->min->inf == true;
+}
+
+IntervalDomain::AbstractValue
+IntervalDomain::eval_stat(const std::shared_ptr<Arc> &arc) {
+  if (arc == nullptr || arc->inst == nullptr)
+    return std::vector<std::shared_ptr<struct Interval>>();
+
+  IntervalDomain::AbstractValue absval;
+  if (arc->retval == nullptr)
+    absval = init_abs_val();
+  else
+    absval = _abstract_values[arc->retval->get_raw_name()];
+
+  switch (arc->inst->getOpcode()) {
+
+    // For now, i've only done the add instruction when the left operand is a
+    // constant
+  case llvm::Instruction::Add: {
+    auto lop = arc->inst->getOperand(0);
+    auto rop = arc->inst->getOperand(1);
+    if (auto lop_val = llvm::dyn_cast<llvm::ConstantInt>(lop)) {
+
+      if (auto rop_val = llvm::dyn_cast<llvm::ConstantInt>(rop)) {
+        if (absval[0]->min == nullptr || absval[0]->max == nullptr)
+          set_top(absval);
+
+        absval[0]->min->inf = false;
+        absval[0]->min->val = (*lop_val->getValue().getRawData()) +
+                              (*rop_val->getValue().getRawData());
+        absval[0]->max->inf = false;
+        absval[0]->max->val = (*lop_val->getValue().getRawData()) +
+                              (*rop_val->getValue().getRawData());
+        print_abst_val(absval);
+
+      } else {
+        auto rvar = _abstract_values.find(rop->getName());
+        if (rvar == _abstract_values.end())
+          return absval;
+
+        if (is_bottom((*rvar->second.begin())))
+          set_bottom(absval);
+        if (is_top((*rvar->second.begin())))
+          set_top(absval);
+        else {
+          absval[0]->min->inf = false;
+          absval[0]->min->val = (*lop_val->getValue().getRawData()) +
+                                (*rvar->second.begin())->min->val;
+          absval[0]->max->inf = false;
+          absval[0]->max->val = (*lop_val->getValue().getRawData()) +
+                                (*rvar->second.begin())->max->val;
+          print_abst_val(absval);
+        }
+      }
+    }
+
+    auto it = _abstract_values.find(arc->retval->get_raw_name());
+    if (it != _abstract_values.end())
+      for (unsigned i = 0; i < absval.size(); ++i)
+        it->second[i] = absval[i];
+
+    return absval;
+  } break;
+
+  default:
+    break;
+  }
+  return absval;
 }
