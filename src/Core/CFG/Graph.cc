@@ -24,13 +24,16 @@ bool Node::equal(const Node &other) const {
          (arc_out == other.arc_out);
 }
 
-Arc::Arc() : id(0), node_out(nullptr), node_in(nullptr), inst(nullptr) {}
+Arc::Arc()
+    : id(0), node_out(nullptr), node_in(nullptr), inst(nullptr),
+      retval(nullptr) {}
 
 Arc::Arc(const Arc &other) {
   this->id = other.id;
   this->inst = other.inst;
   this->node_in = other.node_in;
   this->node_out = other.node_out;
+  this->retval = other.retval;
 }
 Arc &Arc::operator=(const Arc &other) {
   if (this != &other) {
@@ -38,11 +41,13 @@ Arc &Arc::operator=(const Arc &other) {
     node_out = other.node_out;
     node_in = other.node_in;
     inst = other.inst;
+    retval = other.retval;
   }
   return *this;
 }
 
 bool Arc::equal(const Arc &other) const {
   return (other.id == id) && (node_out == other.node_out) &&
-         (node_in == other.node_in) && (inst == other.inst);
+         (node_in == other.node_in) && (inst == other.inst) &&
+         (retval == other.retval);
 }

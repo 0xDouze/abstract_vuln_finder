@@ -1,5 +1,5 @@
 #pragma once
-#include "Graph.hh"
+//#include "Graph.hh"
 #include <llvm/ADT/Twine.h>
 #include <llvm/IR/BasicBlock.h>
 #include <llvm/IR/Function.h>
@@ -14,7 +14,8 @@ struct Var {
 
   /// The constructor can take a boolean specifying if the variable
   /// is a return value or not. By default it is not.
-  Var(bool retval = false) : id(0), isRetVal(retval) {}
+  Var(bool retval = false)
+      : id(0), val(nullptr), type(nullptr), FuncName(), isRetVal(retval) {}
 
   /// Gives the name of the variable. Prepends a string to the name
   /// of the variable if it is a return variable.
@@ -28,13 +29,8 @@ struct Var {
     return val->getName();
   }
 
-  const std::string get_function_name() const {
-    if (pos->inst->getParent() == nullptr &&
-        pos->inst->getParent()->getParent() == nullptr)
-      return "";
-    else
-      return pos->inst->getParent()->getParent()->getName();
-  }
+  const std::string get_raw_name() const { return val->getName(); }
+  const std::string get_function_name() const { return FuncName; }
 
   int id; // unique variable identifier
 
@@ -45,10 +41,9 @@ struct Var {
   /// Pointer to an llvm::Type. It contains the type of the variable
   llvm::Type *type;
 
-  /// Only position implemented for now. It contains a pointer to the
-  /// Arc that declares the variable.
-  std::shared_ptr<Arc>
-      pos; // position in the program for now it's the function name
+  /// String containing the Function parent name
+  llvm::StringRef FuncName;
 
+  /// true if is a retval
   bool isRetVal;
 };

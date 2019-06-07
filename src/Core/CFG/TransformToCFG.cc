@@ -74,11 +74,11 @@ void TransformToCFG::set_func_env_var(std::shared_ptr<struct Env> env,
       if (R->getReturnValue() == nullptr)
         return;
       else {
-        var = create_var(R->getReturnValue(), nullptr, R->getType(), true);
+        var = create_var(R->getReturnValue(), R->getType(), true);
         func_desc->ret_val.push_back(var);
       }
     } else if (val->getName() != "")
-      var = create_var(val, nullptr, val->getType());
+      var = create_var(val, val->getType());
     else
       return;
 
@@ -258,7 +258,8 @@ std::shared_ptr<Arc> TransformToCFG::create_arc(std::shared_ptr<Node> src,
     for (auto &V : env->env_vars)
       if (V->isRetVal &&
           (retval->getReturnValue()->getName() == V->val->getName())) {
-        V->pos = arc;
+        arc->retval = V;
+        V->FuncName = inst->getParent()->getParent()->getName();
         break;
       }
   }
@@ -269,7 +270,8 @@ std::shared_ptr<Arc> TransformToCFG::create_arc(std::shared_ptr<Node> src,
     else
       for (auto &V : env->env_vars)
         if (val->getName() == V->val->getName()) {
-          V->pos = arc;
+          arc->retval = V;
+          V->FuncName = inst->getParent()->getParent()->getName();
           break;
         }
   }
@@ -277,14 +279,11 @@ std::shared_ptr<Arc> TransformToCFG::create_arc(std::shared_ptr<Node> src,
   return arc;
 }
 
-std::shared_ptr<Var> TransformToCFG::create_var(llvm::Value *val,
-                                                std::shared_ptr<Arc> pos,
-                                                llvm::Type *type,
-                                                bool isRetVal) {
+std::shared_ptr<Var>
+TransformToCFG::create_var(llvm::Value *val, llvm::Type *type, bool isRetVal) {
   std::shared_ptr<Var> var = std::make_shared<Var>();
   var->id = _var_cnt++;
   var->val = val;
-  var->pos = pos;
   var->type = type;
   var->isRetVal = isRetVal;
   _cfg.add_cfg_var(var);

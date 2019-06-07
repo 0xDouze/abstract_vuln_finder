@@ -38,8 +38,8 @@ private:
                                   std::shared_ptr<Node> dst,
                                   llvm::Instruction *inst);
 
-  std::shared_ptr<Var> create_var(llvm::Value *val, std::shared_ptr<Arc> pos,
-                                  llvm::Type *type, bool isRetVal = false);
+  std::shared_ptr<Var> create_var(llvm::Value *val, llvm::Type *type,
+                                  bool isRetVal = false);
 
   std::shared_ptr<Func> create_func(const std::string &name,
                                     std::shared_ptr<Node> entry,

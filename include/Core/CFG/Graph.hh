@@ -1,4 +1,5 @@
 #pragma once
+#include "Var.hh"
 #include <list>
 #include <llvm/IR/Instruction.h>
 #include <memory>
@@ -46,4 +47,7 @@ struct Arc {
   /// Pointer to the condition if the instruction is a terminator and
   /// has different execution flows depending on a condition.
   llvm::Value *cond; // condition (if present)
+
+  /// Pointer to the return value variable (if exists)
+  std::shared_ptr<Var> retval;
 };
