@@ -15,7 +15,7 @@ void Iterator<T>::compute_abs(){
     for (auto &L : curr_node->arc_in)
       {
         std::vector<_AbstractValue> pred_val;
-//        _dom.eval_inst(L);
+        pred_val.push_back(_dom.eval_stat(L));
       }
   }
 }
@@ -66,7 +66,7 @@ void Iterator<T>::init_worklist(std::shared_ptr<Func> entry)
 
     _worklist.push_back(entry_node);
     for (auto &A : entry_node->arc_out) {
-      auto hasVar = init_stat(A);
+      init_stat(A);
       stack.push_back(A->node_out);
     }
 
@@ -81,7 +81,6 @@ void Iterator<T>::init_worklist(std::shared_ptr<Func> entry)
     if (passed.count(entry_node) && stack.size() == 0)
       return;
   }
-  _dom.print_env();
 }
 
 template <typename T>
