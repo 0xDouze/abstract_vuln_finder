@@ -31,6 +31,7 @@ int main(int ac, char **av) {
   TransformToCFG tcc(IR);
   cfg = tcc.transform_ir_to_cfg();
   cfg.print_cfg_to_dot();
+
   //  std::shared_ptr<Func> func;
   //  for (auto &F : cfg.get_cfg_funcs())
   //    if (F->name.find("main") != std::string::npos)

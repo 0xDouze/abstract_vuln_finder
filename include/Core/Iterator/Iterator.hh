@@ -1,6 +1,7 @@
 #pragma once
 #include "CFG.hh"
 #include "Func.hh"
+#include "Graph.hh"
 #include <llvm/IR/Instruction.h>
 
 /// @brief Iterator class: This class is used to abstract the
@@ -14,13 +15,13 @@ public:
   // private:
   void init_worklist(std::shared_ptr<Func> entry);
   void compute_abstract_domain();
-  void eval_stat(llvm::Instruction *inst);
   void compute_abs();
+  bool init_stat(std::shared_ptr<Arc> arc);
 
 private:
   using _AbstractValue = typename T::AbstractValue;
-  std::map<Node, _AbstractValue> _abs_map;
-  std::vector<std::shared_ptr<Node>> _worklist;
+  std::map<Node, _AbstractValue> _node_abs_map;
+  std::list<std::shared_ptr<Node>> _worklist;
   T _dom;
   const CFG &_cfg;
 };
