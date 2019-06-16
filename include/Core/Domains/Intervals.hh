@@ -1,5 +1,6 @@
 #pragma once
 #include "CFG.hh"
+#include "INonRelational.hh"
 #include <iostream>
 #include <map>
 #include <memory>
@@ -24,7 +25,11 @@ struct Interval {
 };
 
 /// Class for the interval domain.
-class IntervalDomain {
+class IntervalDomain
+    : public INonRelational<
+          std::vector<std::shared_ptr<struct Interval>>,
+          std::map<std::string,
+                   std::vector<std::shared_ptr<struct Interval>>>> {
 public:
   IntervalDomain() = default;
   IntervalDomain(const CFG &cfg);
