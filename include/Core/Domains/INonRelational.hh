@@ -2,7 +2,6 @@
 #include "Graph.hh"
 
 template <typename AbstractValue, typename Env> class INonRelational {
-
 public:
   virtual ~INonRelational(){};
   virtual AbstractValue init_abs_val() = 0;

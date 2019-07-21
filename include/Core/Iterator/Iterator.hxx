@@ -11,10 +11,10 @@ void Iterator<T>::compute_abs(){
   while (_worklist.empty() == false)
   {
     auto curr_node = _worklist.front();
+    std::vector<_AbstractValue> pred_val;
     _worklist.pop_front();
     for (auto &L : curr_node->arc_in)
       {
-        std::vector<_AbstractValue> pred_val;
         pred_val.push_back(_dom.eval_stat(L));
       }
   }

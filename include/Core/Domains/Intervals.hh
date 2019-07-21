@@ -88,5 +88,9 @@ protected:
                  const std::shared_ptr<struct Interval> &right);
 
 private:
+  AbstractValue _eval_add(const std::shared_ptr<Arc> &arc,
+                          AbstractValue &absval);
+  AbstractValue _eval_sub(const std::shared_ptr<Arc> &arc,
+                          AbstractValue &absval);
   Env _abstract_values;
 };

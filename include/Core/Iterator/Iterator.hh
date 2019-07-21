@@ -20,7 +20,7 @@ public:
 
 private:
   using _AbstractValue = typename T::AbstractValue;
-  std::map<Node, _AbstractValue> _node_abs_map;
+  std::map<std::shared_ptr<Node>, _AbstractValue> _node_abs_map;
   std::list<std::shared_ptr<Node>> _worklist;
   T _dom;
   const CFG &_cfg;

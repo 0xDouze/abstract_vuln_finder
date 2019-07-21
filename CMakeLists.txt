@@ -31,7 +31,7 @@ message(STATUS "Using LLVMConfig.make in: ${LLVM_DIR}")
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
+set(CMAKE_CXX_COMPILER "/usr/bin/clang++")
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/
 	${CMAKE_CURRENT_SOURCE_DIR}/include/Core/Domains
 	${CMAKE_CURRENT_SOURCE_DIR}/include/Core/CFG
@@ -39,6 +39,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/
 	)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -std=c++17 -g -fno-exceptions")
+#set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_DEBUG} -O0 -fsanitize=address -fsanitize-address-use-after-scope -fno-omit-frame-pointer")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_DEBUG} -O0")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_RELEASE} -Wall -Wextra -O2")
 
@@ -55,6 +56,7 @@ add_executable(abstract_vuln src/main.cc
   src/Core/CFG/CFG.cc
   src/Core/CFG/TransformToCFG.cc
   src/Core/Domains/ConcreteDomain.cc
+  src/Core/Domains/IntervalsInst.cc
   src/Core/Domains/Intervals.cc)
 add_library(abstract_vuln_finder SHARED
 	src/IR_manip.cc
@@ -63,6 +65,7 @@ add_library(abstract_vuln_finder SHARED
         src/Core/CFG/CFG.cc
         src/Core/CFG/TransformToCFG.cc
         src/Core/Domains/ConcreteDomain.cc
+        src/Core/Domains/IntervalsInst.cc
         src/Core/Domains/Intervals.cc)
 llvm_map_components_to_libnames(llvm_libs)
 
