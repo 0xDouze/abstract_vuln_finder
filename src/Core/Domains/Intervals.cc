@@ -139,6 +139,18 @@ IntervalDomain::AbstractValue &IntervalDomain::assign_val(AbstractValue &dst,
   return dst;
 }
 
+static inline std::int64_t max(std::int64_t a, std::int64_t b)
+{
+  return a >= b ? a : b;
+}
+
+static inline std::int64_t min(std::int64_t a, std::int64_t b)
+{
+  return a >= b ? b : a;
+}
+
+// join: [min(l,r), max(l,r)]
+// FIX: rename to least upper bound
 void IntervalDomain::bound_max(std::shared_ptr<struct Interval> out,
                                const std::shared_ptr<struct Interval> &left,
                                const std::shared_ptr<struct Interval> &right) {
@@ -163,19 +175,17 @@ void IntervalDomain::bound_max(std::shared_ptr<struct Interval> out,
     out->max->inf = left->max->inf;
     out->dim = left->dim;
   } else {
-    out->min->val =
-        (left->min->val >= right->min->val ? left->min->val : right->min->val);
-    out->min->inf =
-        (left->min->val >= right->min->val ? left->min->inf : right->min->inf);
-    out->max->val =
-        (left->max->val >= right->max->val ? left->max->val : right->max->val);
-    out->max->inf =
-        (left->max->val >= right->max->val ? left->max->inf : right->max->inf);
+    out->min->val = min(left->min->val, right->min->val);
+    out->min->inf = left->min->inf;
+    out->max->val = max(left->max->val, right->max->val);
+    out->max->inf = right->max->inf;
     out->dim = (left->dim >= right->dim ? left->dim : right->dim);
   }
 }
 
 // the dim won't mean anything, it's getting weird
+// To check: for now BOT and a val is equal to val
+// FIX: rename greatest lower bound
 void IntervalDomain::bound_min(std::shared_ptr<struct Interval> out,
                                const std::shared_ptr<struct Interval> &left,
                                const std::shared_ptr<struct Interval> &right) {
@@ -201,15 +211,15 @@ void IntervalDomain::bound_min(std::shared_ptr<struct Interval> out,
     out->max->inf = left->max->inf;
     out->dim = left->dim;
   } else {
-    out->min->val =
-        (left->min->val <= right->min->val ? left->min->val : right->min->val);
-    out->min->inf =
-        (left->min->val <= right->min->val ? left->min->inf : right->min->inf);
-    out->max->val =
-        (left->max->val <= right->max->val ? left->max->val : right->max->val);
-    out->max->inf =
-        (left->max->val <= right->max->val ? left->max->inf : right->max->inf);
-    out->dim = (left->dim <= right->dim ? left->dim : right->dim);
+      if (max(left->min->val, right->min->val) <= min(left->max->val, right->max->val))
+        {
+          out->min->val = max(left->min->val, right->min->val);
+          out->min->inf = left->min->inf; //because it doesn't matter
+          out->max->val = min(left->max->val, right->max->val);
+          out->max->inf = right->max->inf; //because it doesn't matter
+        }
+      else
+        set_bottom(out);
   }
 }
 
@@ -390,8 +400,10 @@ IntervalDomain::eval_stat(const std::shared_ptr<Arc> &arc) {
 
   switch (arc->inst->getOpcode()) {
 
-  case llvm::Instruction::Add: return _eval_add(arc, absval);
-  case llvm::Instruction::Sub: return _eval_sub(arc, absval);
+  case llvm::Instruction::Add:
+    return _eval_add(arc, absval);
+  case llvm::Instruction::Sub:
+    return _eval_sub(arc, absval);
   default:
     break;
   }
