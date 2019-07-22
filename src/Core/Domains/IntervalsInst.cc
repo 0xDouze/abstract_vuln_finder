@@ -3,8 +3,9 @@
 #include <llvm/IR/Instruction.h>
 #include <llvm/IR/Instructions.h>
 
-IntervalDomain::AbstractValue IntervalDomain::_eval_add(const std::shared_ptr<Arc> &arc,
-                                        IntervalDomain::AbstractValue &absval) {
+IntervalDomain::AbstractValue
+IntervalDomain::_eval_add(const std::shared_ptr<Arc> &arc,
+                          IntervalDomain::AbstractValue &absval) {
   auto lop = arc->inst->getOperand(0);
   auto rop = arc->inst->getOperand(1);
 
@@ -96,8 +97,9 @@ IntervalDomain::AbstractValue IntervalDomain::_eval_add(const std::shared_ptr<Ar
   return absval;
 }
 
-IntervalDomain::AbstractValue IntervalDomain::_eval_sub(const std::shared_ptr<Arc> &arc,
-                                        IntervalDomain::AbstractValue &absval) {
+IntervalDomain::AbstractValue
+IntervalDomain::_eval_sub(const std::shared_ptr<Arc> &arc,
+                          IntervalDomain::AbstractValue &absval) {
   auto lop = arc->inst->getOperand(0);
   auto rop = arc->inst->getOperand(1);
 
@@ -172,9 +174,11 @@ IntervalDomain::AbstractValue IntervalDomain::_eval_sub(const std::shared_ptr<Ar
       std::cout << rop->getName().str() << " : " << lop->getName().str()
                 << "\n";
       absval[0]->min->inf = false;
-      absval[0]->min->val = (*lvar->second.begin())->min->val - (*rvar->second.begin())->min->val;
+      absval[0]->min->val =
+          (*lvar->second.begin())->min->val - (*rvar->second.begin())->min->val;
       absval[0]->max->inf = false;
-      absval[0]->max->val = (*lvar->second.begin())->max->val - (*rvar->second.begin())->max->val;
+      absval[0]->max->val =
+          (*lvar->second.begin())->max->val - (*rvar->second.begin())->max->val;
     }
 
     auto it = _abstract_values.find(arc->retval->get_raw_name());

@@ -37,28 +37,41 @@ IntervalDomain::get_val_from_env(std::string &name) {
 }
 
 void IntervalDomain::set_bottom(AbstractValue &val) {
+  if (is_bottom((*val.begin())))
+    return;
   if (val.empty()) {
     std::cerr << "Error when trying to bottom an abstract value\n";
     return;
   } else {
     for (auto &V : val) {
-      if (V->min != nullptr)
+      if (V->min != nullptr) {
         delete V->min;
-      if (V->max != nullptr)
+        V->min = nullptr;
+      }
+      if (V->max != nullptr) {
         delete V->max;
+        V->max = nullptr;
+      }
     }
   }
 }
 
 void IntervalDomain::set_bottom(std::shared_ptr<struct Interval> val) {
+  if (is_bottom(val))
+    return;
   if (val == nullptr) {
     std::cerr << "Error while trying to set bottom from interval\n";
     return;
+  } else {
+    if (val->min != nullptr) {
+      delete val->min;
+      val->min = nullptr;
+    }
+    if (val->max != nullptr) {
+      delete val->max;
+      val->max = nullptr;
+    }
   }
-  if (val->min != nullptr)
-    delete val->min;
-  if (val->max != nullptr)
-    delete val->max;
 }
 
 void IntervalDomain::set_top(std::shared_ptr<struct Interval> val) {
@@ -139,13 +152,11 @@ IntervalDomain::AbstractValue &IntervalDomain::assign_val(AbstractValue &dst,
   return dst;
 }
 
-static inline std::int64_t max(std::int64_t a, std::int64_t b)
-{
+static inline std::int64_t max(std::int64_t a, std::int64_t b) {
   return a >= b ? a : b;
 }
 
-static inline std::int64_t min(std::int64_t a, std::int64_t b)
-{
+static inline std::int64_t min(std::int64_t a, std::int64_t b) {
   return a >= b ? b : a;
 }
 
@@ -211,15 +222,14 @@ void IntervalDomain::bound_min(std::shared_ptr<struct Interval> out,
     out->max->inf = left->max->inf;
     out->dim = left->dim;
   } else {
-      if (max(left->min->val, right->min->val) <= min(left->max->val, right->max->val))
-        {
-          out->min->val = max(left->min->val, right->min->val);
-          out->min->inf = left->min->inf; //because it doesn't matter
-          out->max->val = min(left->max->val, right->max->val);
-          out->max->inf = right->max->inf; //because it doesn't matter
-        }
-      else
-        set_bottom(out);
+    if (max(left->min->val, right->min->val) <=
+        min(left->max->val, right->max->val)) {
+      out->min->val = max(left->min->val, right->min->val);
+      out->min->inf = left->min->inf; // because it doesn't matter
+      out->max->val = min(left->max->val, right->max->val);
+      out->max->inf = right->max->inf; // because it doesn't matter
+    } else
+      set_bottom(out);
   }
 }
 
@@ -384,6 +394,26 @@ bool IntervalDomain::is_top(const std::shared_ptr<struct Interval> &val) {
   return val->max->inf == true && val->min->inf == true;
 }
 
+bool IntervalDomain::is_equal(const AbstractValue &left,
+                              const AbstractValue &right) {
+
+  if (left.size() == right.size()) {
+    for (std::uint32_t i = 0; i < left.size(); ++i) {
+      if (is_bottom(left.at(i)) && is_bottom(right.at(i)))
+        continue;
+      else if (is_bottom(left.at(i)) && !is_bottom(right.at(i)))
+        return false;
+      else if (!is_bottom(left.at(i)) && is_bottom(right.at(i)))
+        return false;
+      else {
+        if (*left.at(i) == *right.at(i))
+          continue;
+      }
+    }
+    return true;
+  }
+  return false;
+}
 // for now i am assuming that i will not have min or max to nullptr when
 // the other one is not. Hopefully i'll never do that. Doing this lifting in c++
 // is already long enough

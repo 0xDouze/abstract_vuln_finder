@@ -19,6 +19,26 @@ struct Interval {
     o.min = nullptr;
     o.max = nullptr;
   }
+  bool operator==(const Interval &o) const {
+    if (min != nullptr && max != nullptr && o.min != nullptr &&
+        o.max != nullptr)
+      return min->inf == o.min->inf && max->inf == o.max->inf &&
+             min->val == o.min->val && max->val == o.max->val;
+    else {
+      if ((min == nullptr && o.min == nullptr) &&
+          (max == nullptr && o.max == nullptr))
+        return true;
+      else if ((min == nullptr && o.min == nullptr) &&
+               (max != nullptr && o.max != nullptr))
+        return true;
+      else if ((min != nullptr && o.min != nullptr) &&
+               (max == nullptr && o.max == nullptr))
+        return true;
+      else
+        return false;
+    }
+  }
+
   Bound *min;
   Bound *max;
   int dim;
@@ -69,7 +89,7 @@ public:
   static void print_abst_val(const AbstractValue &val);
   static bool is_bottom(const std::shared_ptr<struct Interval> &val);
   static bool is_top(const std::shared_ptr<struct Interval> &val);
-
+  static bool is_equal(const AbstractValue &left, const AbstractValue &right);
   AbstractValue eval_stat(const std::shared_ptr<Arc> &arc);
 
 protected:
