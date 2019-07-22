@@ -8,15 +8,24 @@ Iterator<T>::Iterator(const CFG &cfg) :_dom(), _cfg(cfg){
 
 template <typename T>
 void Iterator<T>::compute_abs(){
+  _AbstractValue temp = _dom.init_abs_val();
+
   while (_worklist.empty() == false)
   {
     auto curr_node = _worklist.front();
     std::vector<_AbstractValue> pred_val;
+
+    _dom.set_bottom(temp);
     _worklist.pop_front();
     for (auto &L : curr_node->arc_in)
-      {
         pred_val.push_back(_dom.eval_stat(L));
-      }
+    for (auto &V : pred_val)
+      temp = _dom.join(V, temp);
+    if (!_dom.is_equal(temp, _node_abs_map[curr_node])) {
+      for (auto &L : curr_node->arc_out)
+        _worklist.push_back(L->node_out);
+      _node_abs_map[curr_node] = temp;
+    }
   }
 }
 
@@ -64,6 +73,7 @@ void Iterator<T>::init_worklist(std::shared_ptr<Func> entry)
     if (entry_node->label != "")
       passed.insert(entry_node);
 
+    _node_abs_map.insert(std::make_pair(entry_node, _dom.init_abs_val()));
     _worklist.push_back(entry_node);
     for (auto &A : entry_node->arc_out) {
       init_stat(A);
