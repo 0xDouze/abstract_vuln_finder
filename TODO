@@ -1,8 +1,11 @@
 Tests
 
+Interval:
+widening
+
 Iterator:
-iterator on cfg and worklist with abstract values // WIP
-interval domain implementation
+loops
+Tests
 
 CFG:
 Probably do lazy cfg construction at some point (why did I start this project? I haven't even started the main thing and i already have 10000 things to do ahah. Knew I should have been a woodcutter)
@@ -12,3 +15,6 @@ Implement memory layout abstraction
 Implement domain to manipulate integers and pointers the same way
 interval domain
 Reduced product of all of the above
+
+
+CLEAN THE CODE IT'S HORRIBLE (truth but i also have so much to do to get it to work that it's ok for now, it is readable at least)
