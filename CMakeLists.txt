@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.4.3)
-project(abstract_vuln_finder DESCRIPTION "buffer overflow finder using abstract interpretation")
+project(abstract_vuln_finder)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 

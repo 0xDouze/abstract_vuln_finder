@@ -18,3 +18,9 @@ Reduced product of all of the above
 
 
 CLEAN THE CODE IT'S HORRIBLE (truth but i also have so much to do to get it to work that it's ok for now, it is readable at least)
+
+Memory abstraction
+Interprocedural analysis
+
+FIX:
+Travis (need to do a generic cmake, the llvm link flag changes depending on the dist), good point for trying anyway lol
