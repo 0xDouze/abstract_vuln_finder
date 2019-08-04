@@ -1,0 +1,43 @@
+language: cpp
+compiler: clang
+git:
+  quiet: true
+  depth: 1
+
+notifications:
+  email: false
+
+
+cache:
+  directories:
+    - ${TRAVIS_BUILD_DIR}/deps
+
+
+matrix:
+  include:
+
+    # Linux
+    os: linux
+    dist: bionic
+    addons:
+      apt:
+        sources:
+          - ubuntu-toolchain-r-test
+        packages:
+          - llvm-dev
+          - cmake
+    env:
+      - MATRIX_EVAL="CC=clang-7 && CXX=clang++-7"
+
+before_install:
+  - eval "${MATRIX_EVAL}"
+
+script:
+  - export CC=clang
+  - export CXX=clang++
+  - mkdir build
+  - cd build
+  - cmake -DCMAKE_BUILD_TYPE=Release ..
+  - make
+  - make check
+
