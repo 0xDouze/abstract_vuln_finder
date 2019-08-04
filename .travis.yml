@@ -7,11 +7,7 @@ git:
 notifications:
   email: false
 
-
-cache:
-  directories:
-    - ${TRAVIS_BUILD_DIR}/deps
-
+sudo: required
 
 matrix:
   include:
@@ -26,18 +22,19 @@ matrix:
         packages:
           - llvm-dev
           - cmake
+          - doxygen
     env:
-      - MATRIX_EVAL="CC=clang-7 && CXX=clang++-7"
+      - MATRIX_EVAL="CC=clang && CXX=clang++"
+      - CXX_COMPILER="clang++"
+      - C_COMPILER="clang"
 
 before_install:
   - eval "${MATRIX_EVAL}"
 
 script:
-  - export CC=clang
-  - export CXX=clang++
   - mkdir build
   - cd build
-  - cmake -DCMAKE_BUILD_TYPE=Release ..
-  - make
+  - cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=$C_COMPILER -DCMAKE_CXX_COMPILER=$CXX_COMPILER ..
+  - make -j2
   - make check
 
