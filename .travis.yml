@@ -13,20 +13,20 @@ matrix:
   include:
 
     # Linux
-    os: linux
-    dist: bionic
-    addons:
-      apt:
-        sources:
-          - ubuntu-toolchain-r-test
-        packages:
-          - llvm-dev
-          - cmake
-          - doxygen
-    env:
-      - MATRIX_EVAL="CC=clang && CXX=clang++"
-      - CXX_COMPILER="clang++"
-      - C_COMPILER="clang"
+    - os: linux
+      dist: bionic
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - llvm-dev
+            - cmake
+            - doxygen
+      env:
+        - MATRIX_EVAL="CC=clang-7 && CXX=clang++-7"
+        - CXX_COMPILER="clang++-7"
+        - C_COMPILER="clang-7"
 
 before_install:
   - eval "${MATRIX_EVAL}"
