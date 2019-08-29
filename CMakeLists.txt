@@ -3,6 +3,11 @@ project(abstract_vuln_finder)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 
+if (NOT CMAKE_BUILD_TYPE MATCHES "^([Dd]ebug|[Rr]elease)")
+    message(STATUS "Cmake build type defaulted to Release.")
+    set(CMAKE_BUILD_TYPE "Release")
+endif()
+
 if (CMAKE_BUILD_TYPE MATCHES "^[Rr]elease")
 	option(BUILD_DOC "Build Documentation" ON)
 	find_package(Doxygen)
