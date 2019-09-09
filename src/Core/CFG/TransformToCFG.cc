@@ -14,11 +14,20 @@ void TransformToCFG::translate_func_to_cfg(llvm::Function *func,
   std::vector<llvm::BasicBlock *> blocks;
   std::vector<llvm::Argument *> args;
   std::vector<std::shared_ptr<Var>> retval;
+  std::vector<llvm::GlobalVariable *> global_vars;
   std::shared_ptr<Func> func_desc;
 
   for (auto &A : func->args())
     args.push_back(&A);
   _ir.add_BB_to_worklist(func, blocks);
+  _ir.add_globals_to_worklist(global_vars);
+
+  for (auto &V : global_vars) {
+    auto var =
+        create_var(llvm::dyn_cast<llvm::Value>(*&V), V->llvm::Value::getType());
+    env->env_vars.push_back(var);
+  }
+
   if (blocks.empty()) {
     func_desc = create_func(func->getName(), entry, exit, 0, args, retval);
     _func_envs.push_back(std::make_pair(env, func_desc));

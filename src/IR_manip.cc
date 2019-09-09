@@ -46,6 +46,13 @@ void IR_manip::print_function(llvm::Function *func) const {
     llvm::errs() << *I << "\n";
 }
 
+void IR_manip::add_globals_to_worklist(
+    std::vector<llvm::GlobalVariable *> &worklist) {
+  auto &list = _mod->getGlobalList();
+  for (auto &G : list)
+    worklist.push_back(&G);
+}
+
 void IR_manip::add_BB_to_worklist(llvm::Function *func,
                                   std::vector<llvm::BasicBlock *> &worklist) {
   if (func == nullptr)

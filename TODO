@@ -27,9 +27,15 @@ Travis (need to do a generic cmake, the llvm link flag changes depending on the 
 
 steps to be able to do something someday:
 1) Compare semantics of llvm ir and c. The following steps are based of something applicable to C. Write the formalization of the semantic somewhere kevin lol. <- now
-2) numeric abstract domain
-3) cell based abstract semantics ( goes with 1), based on the numeric abstract domain. This is done to abstract pointer manipulation in general (structs, pointer etc...)
+
+2) numeric abstract domain (relational or non relational)
+
+3) cell based abstract semantics ( goes with 1), based on the numeric abstract domain. This is done to abstract pointer manipulation in general (structs, pointer etc...) ("this domain is basically a functor that lifts a numerical abstract domain to an abstract domain reasoning on abstract types")
+
+3.5) Might need an offset domain. Done by implementing non relational congruence domain. Although might need to infer relational congruence properties for complex cases (linear congruence equality domain))
+
 4) Finish widening of the interval domain.
+
 5) Now you can analyse read programs with interval domain!
 
 Should be done in less than 200 years. I'm still in awe when i look at ikos, knowing everything that has to be done to have a useful analyzer.

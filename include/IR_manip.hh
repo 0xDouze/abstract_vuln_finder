@@ -30,6 +30,10 @@ public:
   /// Just a printer of the function given in parameter to stdout.
   void print_function(llvm::Function *func) const;
 
+  /// Inserts all global variables found in the module and inserts
+  /// it into the vector given in parameter.
+  void add_globals_to_worklist(std::vector<llvm::GlobalVariable *> &worklist);
+
   /// Inserts all basic blocks found in the function and inserts
   /// it into the vector given in parameter.
   static void add_BB_to_worklist(llvm::Function *func,
