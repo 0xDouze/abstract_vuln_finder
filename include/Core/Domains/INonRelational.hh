@@ -1,6 +1,7 @@
 #pragma once
 #include "Graph.hh"
 
+/// FIX: Add missing const and ref
 template <typename AbstractValue, typename Env> class INonRelational {
 public:
   virtual ~INonRelational(){};
@@ -13,6 +14,7 @@ public:
   virtual AbstractValue &get_val_from_env(std::string &name) = 0;
   virtual AbstractValue join(AbstractValue &left, AbstractValue &right) = 0;
   virtual AbstractValue meet(AbstractValue &left, AbstractValue &right) = 0;
+  virtual AbstractValue widen(AbstractValue &left, AbstractValue &right) = 0;
   virtual AbstractValue &assign_val(AbstractValue &dst, AbstractValue &src) = 0;
   virtual AbstractValue eval_stat(const std::shared_ptr<Arc> &arc) = 0;
   virtual void print_env() const = 0;

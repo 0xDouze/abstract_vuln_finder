@@ -45,6 +45,9 @@ struct Interval {
 };
 
 /// Class for the interval domain.
+// +inf * 0 = 0; 0/0 = 0; f.a. x, x/ +-inf = 0; f.a. x > 0,
+// x/0 = +inf, f.a. x < 0, x/0 = -inf
+
 class IntervalDomain
     : public INonRelational<
           std::vector<std::shared_ptr<struct Interval>>,
@@ -76,6 +79,7 @@ public:
   AbstractValue &get_val_from_env(std::string &name);
   AbstractValue join(AbstractValue &left, AbstractValue &right);
   AbstractValue meet(AbstractValue &left, AbstractValue &right);
+  AbstractValue widen(AbstractValue &left, AbstractValue &right);
 
   /// Assign_val assigns the interval found in src into dst.
   /// if src is empty, returns dst unmodified
@@ -92,7 +96,7 @@ public:
   static bool is_equal(const AbstractValue &left, const AbstractValue &right);
   AbstractValue eval_stat(const std::shared_ptr<Arc> &arc);
 
-protected:
+private:
   std::shared_ptr<struct Interval>
   interval_join(const std::shared_ptr<struct Interval> &left,
                 const std::shared_ptr<struct Interval> &right);

@@ -266,6 +266,10 @@ IntervalDomain::meet(IntervalDomain::AbstractValue &left,
   }
   return out;
 }
+
+IntervalDomain::AbstractValue IntervalDomain::widen(AbstractValue &left,
+                                                    AbstractValue &right) {}
+
 std::shared_ptr<struct Interval>
 IntervalDomain::interval_join(const std::shared_ptr<struct Interval> &left,
                               const std::shared_ptr<struct Interval> &right) {

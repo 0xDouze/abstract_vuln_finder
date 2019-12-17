@@ -34,6 +34,7 @@ void Iterator<T>::compute_abs(){
 // curr_node = join(preds)
 // if (curr_node != node)
 //  _worklist.push(*succ)
+//  FIX: I have hardcoded main
 template <typename T>
 T Iterator<T>::compute_dom_from_cfg(){
   std::shared_ptr<Func> entry = nullptr;
