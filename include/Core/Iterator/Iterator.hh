@@ -10,9 +10,9 @@
 template <typename T> class Iterator {
 public:
   Iterator(const CFG &cfg);
-  T compute_dom_from_cfg();
+  Iterator(const CFG &cfg, const std::vector<std::string> &funcs);
+  std::vector<T> compute_dom_from_cfg();
 
-  // private:
   void init_worklist(std::shared_ptr<Func> entry);
   void compute_abstract_domain();
   void compute_abs();
@@ -22,8 +22,9 @@ private:
   using _AbstractValue = typename T::AbstractValue;
   std::map<std::shared_ptr<Node>, _AbstractValue> _node_abs_map;
   std::list<std::shared_ptr<Node>> _worklist;
-  T _dom;
+  std::vector<T> _dom;
   const CFG &_cfg;
+  const std::vector<std::string> _funcs_to_ite;
 };
 
 #include "Iterator.hxx"
