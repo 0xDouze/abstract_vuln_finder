@@ -15,21 +15,21 @@ Iterator<T>::Iterator(const CFG &cfg, const std::vector<std::string> &funcs) : _
 }
 
 template <typename T>
-void Iterator<T>::compute_abs(){
-  _AbstractValue temp = _dom.back().init_abs_val();
+void Iterator<T>::compute_abs(const std::string& func_name){
+  _AbstractValue temp = _dom.at(func_name).init_abs_val();
 
   while (_worklist.empty() == false)
   {
     auto curr_node = _worklist.front();
     std::vector<_AbstractValue> pred_val;
 
-    _dom.back().set_bottom(temp);
+    _dom.at(func_name).set_bottom(temp);
     _worklist.pop_front();
     for (auto &L : curr_node->arc_in)
-        pred_val.push_back(_dom.back().eval_stat(L));
+        pred_val.push_back(_dom.at(func_name).eval_stat(L));
     for (auto &V : pred_val)
-      temp = _dom.back().join(V, temp);
-    if (!_dom.back().is_equal(temp, _node_abs_map[curr_node])) {
+      temp = _dom.at(func_name).join(V, temp);
+    if (!_dom.at(func_name).is_equal(temp, _node_abs_map[curr_node])) {
       for (auto &L : curr_node->arc_out)
         _worklist.push_back(L->node_out);
       _node_abs_map[curr_node] = temp;
@@ -38,7 +38,7 @@ void Iterator<T>::compute_abs(){
 }
 
 template <typename T>
-std::vector<T> Iterator<T>::compute_dom_from_cfg()
+std::map<std::string, T> Iterator<T>::compute_dom_from_cfg()
 {
   std::shared_ptr<Func> entry = nullptr;
   std::vector<std::shared_ptr<Func>> func_list;
@@ -71,10 +71,11 @@ std::vector<T> Iterator<T>::compute_dom_from_cfg()
     }
 
     std::cout << entry->name << "\n";
-    _dom.push_back(T());
+    //_dom.push_back(T());
+    _dom.insert({entry->name, T()});
     init_worklist(entry);
 
-    compute_abs();
+    compute_abs(entry->name);
     _node_abs_map.clear();
     _worklist.clear();
   }
@@ -95,7 +96,7 @@ void Iterator<T>::init_worklist(std::shared_ptr<Func> entry)
   for (auto &A : entry->args)
   {
     if (auto retval = llvm::dyn_cast<llvm::Value>(A))
-      _dom.back().update_env(retval->getName().str(), _dom.back().init_abs_val());
+      _dom.at(entry->name).update_env(retval->getName().str(), _dom.at(entry->name).init_abs_val());
   }
 
   while ((entry_node->arc_out.empty() == false) ||
@@ -103,10 +104,10 @@ void Iterator<T>::init_worklist(std::shared_ptr<Func> entry)
     if (entry_node->label != "")
       passed.insert(entry_node);
 
-    _node_abs_map.insert(std::make_pair(entry_node, _dom.back().init_abs_val()));
+    _node_abs_map.insert(std::make_pair(entry_node, _dom.at(entry->name).init_abs_val()));
     _worklist.push_back(entry_node);
     for (auto &A : entry_node->arc_out) {
-      init_stat(A);
+      init_stat(entry->name, A);
       stack.push_back(A->node_out);
     }
 
@@ -124,10 +125,10 @@ void Iterator<T>::init_worklist(std::shared_ptr<Func> entry)
 }
 
 template <typename T>
-bool Iterator<T>::init_stat(std::shared_ptr<Arc> arc)
+bool Iterator<T>::init_stat(const std::string &func_name, std::shared_ptr<Arc> arc)
 {
   if (arc->retval != nullptr) {
-    _dom.back().update_env(arc->retval->get_var_name(), _dom.back().init_abs_val());
+    _dom.at(func_name).update_env(arc->retval->get_var_name(), _dom.at(func_name).init_abs_val());
     return true;
   }
   return false;

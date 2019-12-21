@@ -56,7 +56,8 @@ int main(int ac, char **av) {
   std::vector<std::string> func_list = {"main", "printf", "strcpy"};
   Iterator<IntervalDomain> ite(cfg, func_list);
   auto list_dom = ite.compute_dom_from_cfg();
-  list_dom.back().print_env();
+  for (auto &M : list_dom)
+    M.second.print_env();
 #ifdef ENABLE_APRON
   APIntervalDomain a;
   a.init_abs_val();
