@@ -2,6 +2,9 @@
 #include <algorithm>
 #include <iterator>
 
+// Fix: looks like a create a variable for returninst
+// i should check first if the variable already exists
+
 TransformToCFG::TransformToCFG(IR_manip &ir)
     : _node_cnt(0), _arc_cnt(0), _var_cnt(0), _func_cnt(0), _ir(ir), _cfg() {
   set_constructor();
@@ -16,6 +19,7 @@ void TransformToCFG::translate_func_to_cfg(llvm::Function *func,
   std::vector<std::shared_ptr<Var>> retval;
   std::vector<llvm::GlobalVariable *> global_vars;
   std::shared_ptr<Func> func_desc;
+  std::vector<std::shared_ptr<Var>> translated_global_vars;
 
   for (auto &A : func->args())
     args.push_back(&A);
@@ -23,9 +27,9 @@ void TransformToCFG::translate_func_to_cfg(llvm::Function *func,
   _ir.add_globals_to_worklist(global_vars);
 
   for (auto &V : global_vars) {
-    auto var =
-        create_var(llvm::dyn_cast<llvm::Value>(*&V), V->llvm::Value::getType());
-    env->env_vars.push_back(var);
+    translated_global_vars.push_back(create_var(
+        llvm::dyn_cast<llvm::Value>(*&V), V->llvm::Value::getType()));
+    env->env_vars.push_back(translated_global_vars.back());
   }
 
   if (blocks.empty()) {
@@ -35,6 +39,10 @@ void TransformToCFG::translate_func_to_cfg(llvm::Function *func,
   }
 
   func_desc = create_func(func->getName(), entry, exit, 0, args, retval);
+
+  for (auto &V : translated_global_vars)
+    func_desc->vars.push_back(V);
+
   _func_envs.push_back(std::make_pair(env, func_desc));
   get_data_pass(func_desc, blocks);
   if (func_desc->bb_cnt == 0)
@@ -86,9 +94,10 @@ void TransformToCFG::set_func_env_var(std::shared_ptr<struct Env> env,
         var = create_var(R->getReturnValue(), R->getType(), true);
         func_desc->ret_val.push_back(var);
       }
-    } else if (val->getName() != "")
+    } else if (val->getName() != "") {
       var = create_var(val, val->getType());
-    else
+      func_desc->vars.push_back(var);
+    } else
       return;
 
     env->env_vars.push_back(var);
@@ -313,6 +322,9 @@ TransformToCFG::create_func(const std::string &name,
   func->func_exit = exit;
   func->args = args;
   func->ret_val = ret;
+  for (auto &V : args)
+    func->vars.push_back(create_var(llvm::dyn_cast<llvm::Value>(*&V),
+                                    V->llvm::Value::getType()));
   _cfg.add_cfg_func(func);
   return func;
 }
