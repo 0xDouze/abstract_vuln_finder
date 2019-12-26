@@ -71,7 +71,6 @@ std::map<std::string, T> Iterator<T>::compute_dom_from_cfg()
     }
 
     std::cout << entry->name << "\n";
-    //_dom.push_back(T());
     _dom.insert({entry->name, T()});
     init_worklist(entry);
 
@@ -87,6 +86,7 @@ void Iterator<T>::init_worklist(std::shared_ptr<Func> entry)
   if (entry == nullptr)
     return;
 
+  _dom.at(entry->name).init_internal_env(entry);
   std::shared_ptr<Node> entry_node = entry->func_entry;
   std::set<std::shared_ptr<Node>> passed;
   std::vector<std::shared_ptr<Node>> stack;
