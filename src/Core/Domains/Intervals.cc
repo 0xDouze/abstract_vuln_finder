@@ -19,7 +19,7 @@ IntervalDomain::~IntervalDomain() {
   }
 }
 
-IntervalDomain::Env &IntervalDomain::get_env() { return _abstract_values; }
+IntervalDomain::Env IntervalDomain::get_env() { return _abstract_values; }
 
 IntervalDomain::AbstractValue IntervalDomain::init_abs_val() {
   IntervalDomain::AbstractValue val;
@@ -31,7 +31,7 @@ void IntervalDomain::update_env(std::string name, AbstractValue val) {
   _abstract_values[name] = val;
 }
 
-IntervalDomain::AbstractValue &
+IntervalDomain::AbstractValue
 IntervalDomain::get_val_from_env(std::string &name) {
   return _abstract_values[name];
 }
@@ -114,8 +114,8 @@ void IntervalDomain::set_top(AbstractValue &val) {
   }
 }
 
-IntervalDomain::AbstractValue &IntervalDomain::add_var(std::string &varname,
-                                                       unsigned dim) {
+IntervalDomain::AbstractValue IntervalDomain::add_var(std::string &varname,
+                                                      unsigned dim) {
   _abstract_values[varname] = std::vector<std::shared_ptr<struct Interval>>();
   for (unsigned i = 0; i < dim; ++i) {
     _abstract_values[varname].push_back(std::make_shared<struct Interval>());
@@ -124,8 +124,8 @@ IntervalDomain::AbstractValue &IntervalDomain::add_var(std::string &varname,
   return _abstract_values[varname];
 }
 
-IntervalDomain::AbstractValue &IntervalDomain::assign_val(AbstractValue &dst,
-                                                          AbstractValue &src) {
+IntervalDomain::AbstractValue IntervalDomain::assign_val(AbstractValue &dst,
+                                                         AbstractValue &src) {
   if (src.empty()) {
     std::cerr << "Error while trying to assign an interval to a value\n";
     return dst;
@@ -442,4 +442,8 @@ IntervalDomain::eval_stat(const std::shared_ptr<Arc> &arc) {
     break;
   }
   return absval;
+}
+
+void IntervalDomain::init_internal_env(const std::shared_ptr<Func> &func) {
+  (void)func;
 }

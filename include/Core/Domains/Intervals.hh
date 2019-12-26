@@ -55,7 +55,6 @@ class IntervalDomain
                    std::vector<std::shared_ptr<struct Interval>>>> {
 public:
   IntervalDomain() = default;
-  IntervalDomain(const CFG &cfg);
   IntervalDomain(const IntervalDomain &o) = delete;
   IntervalDomain &operator=(const IntervalDomain &o) = delete;
   IntervalDomain(IntervalDomain &&o);
@@ -64,7 +63,7 @@ public:
   using AbstractValue = std::vector<std::shared_ptr<struct Interval>>;
   /// Type of the environment. For ease of typing.
   using Env = std::map<std::string, AbstractValue>;
-  Env &get_env();
+  Env get_env();
 
   /// Init the environment, with nothing inside. Returns a reference to the
   /// environment.
@@ -73,10 +72,10 @@ public:
   void set_top(AbstractValue &val);
   void set_top(std::shared_ptr<struct Interval> val);
   void set_bottom(std::shared_ptr<struct Interval> val);
-  AbstractValue &add_var(std::string &varname, unsigned dim);
+  AbstractValue add_var(std::string &varname, unsigned dim);
 
   void update_env(std::string name, AbstractValue val);
-  AbstractValue &get_val_from_env(std::string &name);
+  AbstractValue get_val_from_env(std::string &name);
   AbstractValue join(AbstractValue &left, AbstractValue &right);
   AbstractValue meet(AbstractValue &left, AbstractValue &right);
   AbstractValue widen(AbstractValue &left, AbstractValue &right);
@@ -84,7 +83,7 @@ public:
   /// Assign_val assigns the interval found in src into dst.
   /// if src is empty, returns dst unmodified
   /// else returns a dst with the new interval
-  AbstractValue &assign_val(AbstractValue &dst, AbstractValue &src);
+  AbstractValue assign_val(AbstractValue &dst, AbstractValue &src);
 
   // might have a problem with mixing abstractvalue and intervals
   // not sure how it will turn out. might have to redo it later.
@@ -95,6 +94,8 @@ public:
   static bool is_top(const std::shared_ptr<struct Interval> &val);
   static bool is_equal(const AbstractValue &left, const AbstractValue &right);
   AbstractValue eval_stat(const std::shared_ptr<Arc> &arc);
+
+  void init_internal_env(const std::shared_ptr<Func> &func);
 
 private:
   std::shared_ptr<struct Interval>
