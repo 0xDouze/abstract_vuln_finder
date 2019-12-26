@@ -38,9 +38,14 @@ struct Func {
   /// Basic Block counter. Used for printing check
   unsigned bb_cnt;
 
+  /// Vector of all the variables in the function.
+  std::vector<std::shared_ptr<Var>> vars;
+
   // Usuals
   const std::vector<llvm::Argument *> &get_args() const;
   const std::vector<std::shared_ptr<Arc>> &get_func_calls() const;
+  const std::vector<std::shared_ptr<Var>> &get_all_vars() const;
   void add_arg(llvm::Argument *arg);
   void add_func_call(std::shared_ptr<Arc> call);
+  void add_var(std::shared_ptr<Var> var);
 };
