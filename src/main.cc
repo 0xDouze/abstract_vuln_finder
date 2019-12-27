@@ -56,14 +56,20 @@ int main(int ac, char **av) {
   std::vector<std::string> func_list = {"main", "printf", "strcpy"};
   Iterator<IntervalDomain> ite(cfg, func_list);
   auto list_dom = ite.compute_dom_from_cfg();
-  for (auto &M : list_dom)
-    M.second.print_env();
+//  for (auto &M : list_dom)
+//    M.second.print_env();
 #ifdef ENABLE_APRON
-  APIntervalDomain a;
-  a.init_abs_val();
-  std::string stringtest("coucou");
-  auto abs_new = a.add_var(stringtest, 1);
-  std::cout << abs_new << " ca marche \n";
+  // APIntervalDomain a;
+  // a.init_abs_val();
+  // std::string stringtest("coucou");
+  //  auto abs_new = a.add_var(stringtest, 1);
+  //  std::cout << abs_new << " ca marche \n";
+
+  //  apron::interval interval(-10, 100);
+  //  a.update_env(func_list[0], interval);
+
+  Iterator<APIntervalDomain> ite2(cfg, func_list);
+  auto list_dom2 = ite2.compute_dom_from_cfg();
 #endif
   return 0;
 }

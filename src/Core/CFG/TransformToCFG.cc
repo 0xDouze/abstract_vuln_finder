@@ -131,7 +131,7 @@ void TransformToCFG::get_data_pass(std::shared_ptr<Func> func_desc,
       func_desc->bb_cnt += 1;
     } else {
       llvm::errs() << "BasicBlock name missing. Did you opt -instnamer?\n";
-      return;
+      std::exit(-1);
     }
 
     for (llvm::Instruction &I : **BB) {
