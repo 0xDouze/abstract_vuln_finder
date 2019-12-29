@@ -8,11 +8,11 @@ Will focus on buffer overflows for now.
 - C++17
 - LLVM (recent enough)
 - googletest - Autodownloaded during build
-
+- Apron library (https://github.com/antoinemine/apron)
 #How to use:
 - mkdir build
 - cd build
-- cmake ..
+- cmake .. -DENABLE_APRON=1 -DCMAKE_BUILD_TYPE=Release
 - [insert mcsema commands to get bc file]
 - opt -instnamer (-O3) [BC file] -o [BC file]
 - ./abstract_vuln [IR/BC file]
