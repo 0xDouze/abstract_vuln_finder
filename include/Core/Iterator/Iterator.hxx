@@ -53,7 +53,7 @@ std::map<std::string, T> Iterator<T>::compute_dom_from_cfg()
     for (auto &V : _funcs_to_ite)
     {
       for (auto &A : cfg_funcs)
-        if (A->name.find(V) != std::string::npos)
+        if (A->name == V)
         {
           func_list.push_back(A);
           break;
@@ -128,7 +128,7 @@ template <typename T>
 bool Iterator<T>::init_stat(const std::string &func_name, std::shared_ptr<Arc> arc)
 {
   if (arc->retval != nullptr) {
-    _dom.at(func_name).update_env(arc->retval->get_var_name(), _dom.at(func_name).init_abs_val());
+    _dom.at(func_name).update_env(arc->retval->get_raw_name(), _dom.at(func_name).init_abs_val());
     return true;
   }
   return false;
