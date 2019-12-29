@@ -54,7 +54,7 @@ int main(int ac, char **av) {
   //      std::cout << retval->getName().str() << "\n";
   //  }
   // ConcreteDomain domain;
-  std::vector<std::string> func_list = {"sub_4005a0_main", "printf", "strcpy"};
+  std::vector<std::string> func_list = {"sub_4005a0_main"};
 //  Iterator<IntervalDomain> ite(cfg, func_list);
 //  auto list_dom = ite.compute_dom_from_cfg();
 //  for (auto &M : list_dom)
@@ -73,15 +73,15 @@ int main(int ac, char **av) {
   Iterator<APIntervalDomain> ite2(cfg, func_list);
   auto list_dom2 = ite2.compute_dom_from_cfg();
 
-  APIntervalDomain itv_dom;
-
-  // Hmm... is there really no way to print only the constrained vars vals in an
-  // abstract value in apron?? for now it prints the whole env.
-  for (auto &M : list_dom2) {
-    auto env = M.second.get_env();
-    for (auto &V : env)
-      V->dump(box);
-  }
+  for (auto &M : list_dom2)
+    M.second.print_env();
+    // Hmm... is there really no way to print only the constrained vars vals in
+    // an abstract value in apron?? for now it prints the whole env.
+    // for (auto &M : list_dom2) {
+    //  auto env = M.second.get_env();
+    //  for (auto &V : env)
+    //   V->dump(box);
+    // }
 #endif
   return 0;
 }

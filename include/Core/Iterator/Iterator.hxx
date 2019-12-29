@@ -74,7 +74,7 @@ std::map<std::string, T> Iterator<T>::compute_dom_from_cfg()
     _dom.insert({entry->name, T()});
     init_worklist(entry);
 
-    compute_abs(entry->name);
+    //compute_abs(entry->name);
     _node_abs_map.clear();
     _worklist.clear();
   }

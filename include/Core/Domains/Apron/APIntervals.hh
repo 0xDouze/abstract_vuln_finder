@@ -21,7 +21,7 @@
 /// represents one variable. Each abstract value share the same
 /// "super-environment" in the apron library.
 class APIntervalDomain
-    : public INonRelational<apron::interval,
+    : public INonRelational<std::shared_ptr<apron::abstract1>,
                             std::vector<std::shared_ptr<apron::abstract1>>> {
 public:
   APIntervalDomain() = default;
@@ -30,7 +30,7 @@ public:
   APIntervalDomain(APIntervalDomain &&o);
   ~APIntervalDomain() = default;
 
-  using AbstractValue = apron::interval;
+  using AbstractValue = std::shared_ptr<apron::abstract1>;
   using Env = std::vector<std::shared_ptr<apron::abstract1>>;
 
   AbstractValue init_abs_val();
