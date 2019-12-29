@@ -19,11 +19,13 @@ void APIntervalDomain::set_bottom(APIntervalDomain::AbstractValue &val) {
 void APIntervalDomain::set_top(APIntervalDomain::AbstractValue &val) {
   val.set(apron::top());
 }
-// fix the dim
+
+// fix the function -- might not be useful anymore here
 APIntervalDomain::AbstractValue APIntervalDomain::add_var(std::string &varname,
                                                           unsigned dim) {
   (void)dim;
   auto var_tmp = apron::var(varname);
+
   for (auto &V : _abs_env) {
     auto env_tmp = V->get_environment();
 
@@ -41,26 +43,26 @@ APIntervalDomain::AbstractValue APIntervalDomain::add_var(std::string &varname,
   _abs_env.push_back(absval);
 }
 
+// I will have to add do everything in the eval stat for the computation of the
+// abstract values
 void APIntervalDomain::update_env(std::string name, AbstractValue val) {
-  (void)name;
-  (void)val;
-  //  std::vector<apron::var> inte = {std::string("i") + name};
-  //  std::vector<apron::var> real = {name};
-  //  std::vector<apron::interval> interv = {val};
-  //  apron::environment e(inte, real);
-  //  apron::interval_array inar(interv);
+  std::vector<apron::var> tmp_vect_var = {name};
+  std::vector<AbstractValue> tmp_vect_itv = {val};
+  apron::interval_array itv_arr = tmp_vect_itv;
+  std::cout << "current environment: " << _ap_env << "\n";
+  for (auto &V : _abs_env) {
+    if (V->is_variable_unconstrained(_box, tmp_vect_var.front()) ==
+        false) { // if variable is used in the absval
+      V->set(_box, _ap_env, tmp_vect_var, itv_arr);
+      return;
+    }
+  }
 
-  //  for (auto &V : _abs_env) {
-  //    if (V != nullptr) {
-  //    }
-  //  }
-  // auto absval = std::make_shared<apron::abstract1>(_box, e, inte, interv);
+  auto absval =
+      std::make_shared<apron::abstract1>(_box, _ap_env, tmp_vect_var, itv_arr);
 
-  // std::cout << absval->to_box(_box) << " ca c'est mon interval\n";
-
-  // absval = std::make_shared<apron::abstract1>(_box, e, apron::top());
-  // std::cout << absval->to_box(_box) << "ca c'est mon bottom interval\n";
-  // std::cout << absval->bound(_box, std::string("i") + name) << "\n";
+  _abs_env.push_back(absval);
+  return;
 }
 
 APIntervalDomain::Env APIntervalDomain::get_env() { return _abs_env; }
@@ -69,18 +71,14 @@ APIntervalDomain::AbstractValue
 APIntervalDomain::get_val_from_env(std::string &name) {
   auto var = apron::var(name);
 
-  if (!_abs_env.empty()) {
-    for (auto &V : _abs_env) {
-      if (V != nullptr) {
-        auto env = V->get_environment();
-        if (env.contains(var))
-          return V->bound(_box, var);
-      }
-    }
-  } else
-    std::cerr << "Error no abstract value found\n";
+  for (const auto &V : _abs_env) {
+    if (V->is_variable_unconstrained(_box, var) ==
+        false) // if variable is used in the absval
+      return V->bound(_box, var);
+  }
 
-  return apron::interval(apron::bottom());
+  std::cerr << "Variable not found in the abstract domain\n";
+  return apron::bottom();
 }
 
 APIntervalDomain::AbstractValue
@@ -135,8 +133,9 @@ void APIntervalDomain::init_internal_env(const std::shared_ptr<Func> &func) {
     real_vars.push_back(apron::var(V->get_raw_name()));
   }
 
-  _ap_env.add(inte_vars, real_vars);
-  std::cout << "test called: " << _ap_env << "\n";
+  _ap_env = _ap_env.add(inte_vars, real_vars);
+  std::cout << "func: " << func->name << "\n";
+  _ap_env.print();
 }
 
 bool APIntervalDomain::is_equal(const APIntervalDomain::AbstractValue &left,

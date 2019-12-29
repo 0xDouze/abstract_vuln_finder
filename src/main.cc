@@ -7,6 +7,7 @@
 #include <ios>
 #include <iostream>
 #include <llvm/IR/BasicBlock.h>
+#include <map>
 #include <memory>
 #include <set>
 #ifdef ENABLE_APRON
@@ -53,9 +54,9 @@ int main(int ac, char **av) {
   //      std::cout << retval->getName().str() << "\n";
   //  }
   // ConcreteDomain domain;
-  std::vector<std::string> func_list = {"main", "printf", "strcpy"};
-  Iterator<IntervalDomain> ite(cfg, func_list);
-  auto list_dom = ite.compute_dom_from_cfg();
+  std::vector<std::string> func_list = {"sub_4005a0_main", "printf", "strcpy"};
+//  Iterator<IntervalDomain> ite(cfg, func_list);
+//  auto list_dom = ite.compute_dom_from_cfg();
 //  for (auto &M : list_dom)
 //    M.second.print_env();
 #ifdef ENABLE_APRON
@@ -68,8 +69,19 @@ int main(int ac, char **av) {
   //  apron::interval interval(-10, 100);
   //  a.update_env(func_list[0], interval);
 
+  apron::box_manager box;
   Iterator<APIntervalDomain> ite2(cfg, func_list);
   auto list_dom2 = ite2.compute_dom_from_cfg();
+
+  APIntervalDomain itv_dom;
+
+  // Hmm... is there really no way to print only the constrained vars vals in an
+  // abstract value in apron?? for now it prints the whole env.
+  for (auto &M : list_dom2) {
+    auto env = M.second.get_env();
+    for (auto &V : env)
+      V->dump(box);
+  }
 #endif
   return 0;
 }
